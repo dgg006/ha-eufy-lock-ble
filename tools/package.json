@@ -1,0 +1,12 @@
+{
+  "name": "eufy-lock-ble-tools",
+  "private": true,
+  "type": "module",
+  "description": "Fetch the per-device secrets the integration needs from your eufy account",
+  "scripts": {
+    "fetch": "node fetch_ids.mjs"
+  },
+  "dependencies": {
+    "eufy-security-client": "^4.1.1-1"
+  }
+}

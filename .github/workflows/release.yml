@@ -1,0 +1,36 @@
+name: Release archive
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Check public file boundaries
+        run: python scripts/check_public_tree.py
+      - name: Build integration-only archive
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import zipfile
+          root = Path("custom_components/eufy_lock_ble")
+          with zipfile.ZipFile("eufy_lock_ble.zip", "w", zipfile.ZIP_DEFLATED) as archive:
+              for path in sorted(root.rglob("*")):
+                  if path.is_file() and "__pycache__" not in path.parts and path.suffix != ".pyc":
+                      archive.write(path, path.relative_to(root))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: eufy_lock_ble
+          path: eufy_lock_ble.zip
+          if-no-files-found: error

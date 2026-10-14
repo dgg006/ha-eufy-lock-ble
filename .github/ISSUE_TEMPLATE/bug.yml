@@ -1,0 +1,39 @@
+name: Report a problem
+description: Report a problem without posting account or device identifiers.
+body:
+  - type: markdown
+    attributes:
+      value: Do not include passwords, tokens, full serials, Bluetooth addresses, account exports or packet captures.
+  - type: input
+    id: model
+    attributes:
+      label: Exact model code
+      placeholder: T8510 (include any suffix such as P)
+    validations:
+      required: true
+  - type: input
+    id: firmware
+    attributes:
+      label: Lock firmware
+  - type: input
+    id: versions
+    attributes:
+      label: Integration and Home Assistant versions
+    validations:
+      required: true
+  - type: input
+    id: bluetooth
+    attributes:
+      label: Bluetooth adapter or ESPHome proxy type
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened and what did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant redacted error lines
+      description: Prefer the error code and a short excerpt. Review logs before posting.
+      render: text

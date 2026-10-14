@@ -1,0 +1,26 @@
+{
+  "domain": "eufy_lock_ble",
+  "name": "eufy Smart Lock (BLE)",
+  "bluetooth": [
+    {
+      "local_name": "T85*",
+      "connectable": true
+    }
+  ],
+  "codeowners": [
+    "@dgg006"
+  ],
+  "config_flow": true,
+  "dependencies": [
+    "bluetooth_adapters"
+  ],
+  "documentation": "https://github.com/dgg006/ha-eufy-lock-ble",
+  "integration_type": "device",
+  "iot_class": "local_push",
+  "issue_tracker": "https://github.com/dgg006/ha-eufy-lock-ble/issues",
+  "loggers": [
+    "custom_components.eufy_lock_ble"
+  ],
+  "requirements": [],
+  "version": "0.2.0"
+}

@@ -1,0 +1,31 @@
+[project]
+name = "ha-eufy-lock-ble"
+version = "0.2.0"
+description = "Home Assistant integration: eufy BLE smart locks through Bluetooth proxies, no Wi-Fi bridge"
+readme = "README.md"
+requires-python = ">=3.13.2"
+license = { text = "MIT" }
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+addopts = "-p no:cacheprovider -q"
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+extend-exclude = [".venv", ".venv312", "node_modules"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM", "RUF", "D"]
+ignore = ["D203", "D213", "D107", "D105", "D102", "D103", "D104", "RUF012", "E501"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["D", "S101", "B011"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["custom_components.eufy_lock_ble"]
+force-sort-within-sections = true
+combine-as-imports = true

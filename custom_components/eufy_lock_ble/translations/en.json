@@ -1,0 +1,176 @@
+{
+  "config": {
+    "flow_title": "{name}",
+    "step": {
+      "user": {
+        "title": "Select your eufy lock",
+        "description": "Locks advertising nearby (through a Bluetooth adapter or ESPHome Bluetooth proxy). Close the eufy app first: the lock accepts a single Bluetooth connection.",
+        "data": {
+          "address": "Device"
+        }
+      },
+      "manual": {
+        "title": "Bluetooth address",
+        "data": {
+          "address": "Bluetooth address (AA:BB:CC:DD:EE:FF)"
+        }
+      },
+      "credentials": {
+        "title": "Lock credentials",
+        "description": "Per-device secrets for {address}. They were filled in from your eufy account when you logged in; otherwise fetch them once with `tools/fetch_ids.mjs` (see README): the full 16-character serial, the 40-hex `admin_user_id`, and the lock's static P-256 public key (128 hex characters).",
+        "data": {
+          "name": "Name",
+          "serial": "Serial number",
+          "admin_user_id": "Admin user ID (40 hex)",
+          "lock_public_key": "Lock public key (128 hex)",
+          "short_user_id": "Short user ID",
+          "nickname": "Nickname shown in the lock log",
+          "skip_verify": "Skip the connection test"
+        },
+        "data_description": {
+          "short_user_id": "Usually 0 for the account owner.",
+          "nickname": "The (masked) account nickname, e.g. `abc***`. Leave empty if unknown.",
+          "skip_verify": "Save without connecting (e.g. the lock is out of range right now)."
+        }
+      },
+      "account": {
+        "title": "eufy account",
+        "description": "Lock {name} ({address}). Home Assistant logs into your eufy account once to fetch the secrets this lock needs (serial number, admin user ID, public key). The password is used for this login only and is not stored. Tick the last box to type the secrets yourself instead.",
+        "data": {
+          "email": "E-mail",
+          "password": "Password",
+          "country": "Country of the eufy account",
+          "manual_credentials": "Enter the lock credentials manually instead"
+        },
+        "data_description": {
+          "country": "The country you selected when creating the eufy account; it decides which eufy server holds your devices."
+        }
+      },
+      "captcha": {
+        "title": "Captcha",
+        "description": "eufy asks for a captcha before accepting the login.\n\n{captcha}",
+        "data": {
+          "captcha_code": "Characters shown in the image"
+        }
+      },
+      "verify_code": {
+        "title": "Verification code",
+        "description": "eufy e-mailed a verification code to {email}. Enter it below.",
+        "data": {
+          "verify_code": "Verification code"
+        }
+      },
+      "select_lock": {
+        "title": "Which lock is this?",
+        "description": "None of the locks on the account reports the Bluetooth address {address}. Pick the one you are setting up.",
+        "data": {
+          "lock": "Lock"
+        }
+      }
+    },
+    "error": {
+      "invalid_address": "That is not a valid Bluetooth address.",
+      "invalid_serial": "The serial must be 8–16 letters/digits.",
+      "invalid_admin_user_id": "The admin user ID must be exactly 40 hexadecimal characters.",
+      "invalid_public_key": "The public key must be 128 hex characters (X‖Y) and a valid P-256 point.",
+      "invalid_short_user_id": "The short user ID must be between 0 and 65535.",
+      "invalid_nickname": "The nickname is too long.",
+      "serial_mismatch": "The lock reports a different serial number.",
+      "not_in_range": "No Bluetooth adapter or proxy currently sees this lock.",
+      "cannot_connect": "Could not connect to the lock. Make sure the eufy app is closed.",
+      "handshake_rejected": "The lock rejected the credentials. Check the admin user ID and public key, and that Home Assistant's clock and time zone are correct.",
+      "unknown": "Unexpected error.",
+      "invalid_auth": "Invalid e-mail or password.",
+      "locked_out": "eufy has temporarily blocked logins for this account after too many attempts. Wait a while and try again.",
+      "cannot_connect_cloud": "Could not reach the eufy cloud.",
+      "invalid_captcha": "Captcha answer refused; try the new image.",
+      "invalid_verify_code": "Verification code refused or expired. A new one may have been sent.",
+      "no_locks": "No lock found on this eufy account."
+    },
+    "abort": {
+      "already_configured": "This lock is already configured.",
+      "already_in_progress": "Configuration is already in progress.",
+      "no_devices_found": "No eufy lock found."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "eufy lock options",
+        "data": {
+          "keep_connected": "Stay connected (live state updates)",
+          "poll_interval": "Poll interval (seconds)"
+        },
+        "data_description": {
+          "keep_connected": "Keeps the Bluetooth session open so the lock pushes state changes immediately. The eufy app cannot connect while this is on.",
+          "poll_interval": "How often to read the state and parameters."
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "connected": {
+        "name": "Connected"
+      },
+      "auto_lock": {
+        "name": "Auto-lock"
+      },
+      "auto_lock_schedule": {
+        "name": "Auto-lock schedule"
+      },
+      "one_touch_lock": {
+        "name": "One-touch lock"
+      },
+      "wrong_try_protect": {
+        "name": "Wrong-try protection"
+      },
+      "scramble_passcode": {
+        "name": "Scramble passcode"
+      }
+    },
+    "sensor": {
+      "rssi": {
+        "name": "Signal strength"
+      },
+      "parameters": {
+        "name": "Parameters"
+      },
+      "auto_lock_timer": {
+        "name": "Auto-lock delay"
+      },
+      "auto_lock_schedule_start": {
+        "name": "Auto-lock schedule start"
+      },
+      "auto_lock_schedule_end": {
+        "name": "Auto-lock schedule end"
+      },
+      "wrong_try_lockdown": {
+        "name": "Wrong-try lockdown"
+      },
+      "wrong_try_attempts": {
+        "name": "Wrong-try attempts"
+      },
+      "sound_volume": {
+        "name": "Sound volume",
+        "state": {
+          "silent": "Silent",
+          "low": "Low",
+          "medium": "Medium",
+          "high": "High"
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "refused": {
+      "message": "The lock refused the command (result {result}). Check that Home Assistant's clock is correct."
+    },
+    "unreachable": {
+      "message": "The lock is not connected or not in range."
+    },
+    "communication_error": {
+      "message": "Communication with the lock failed: {error}"
+    }
+  }
+}

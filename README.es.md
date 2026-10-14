@@ -1,0 +1,85 @@
+# eufy Smart Lock Touch T8510 por Bluetooth
+
+Integración comunitaria para Home Assistant basada en
+[Leicas/ha-eufy-lock-ble](https://github.com/Leicas/ha-eufy-lock-ble), con licencia MIT.
+
+**Modelo comprobado: T8510, Smart Lock Touch, firmware 2.0.2.3.** Se verificaron
+bloqueo, desbloqueo, estado, batería, lectura de ajustes y mantenimiento de conexión.
+
+Es el modelo Bluetooth alimentado por **4 pilas AA**, **sin Wi-Fi integrado**.
+La versión de referencia se vendía **sin puente Wi-Fi**: el puente se compraba
+por separado. También existieron paquetes con puente incluido; esta integración
+no necesita ese accesorio.
+
+[![Imagen oficial del modelo T8510, exterior e interior](https://cdn.shopify.com/s/files/1/0504/7094/4954/products/E130SmartLock.png?v=1698303947)](https://www.eufy.com/products/t8510)
+
+Imagen del fabricante eufy/Anker. Algunas páginas lo llaman E130; verificá el código
+**T8510** de la etiqueta. T8510P, T8520 y otros modelos parecidos no quedan
+confirmados por su apariencia. [Compatibilidad y fuentes](docs/SUPPORTED_MODELS.md).
+
+## Requisitos
+
+- Home Assistant 2026.2.3 o posterior con Bluetooth. Prueba física realizada con 2026.10.1.
+- Adaptador Bluetooth local o proxy ESPHome cercano, con conexiones activas habilitadas.
+- Cerradura configurada previamente en la app oficial y acceso a sus credenciales.
+- Fecha, hora y zona horaria correctas en la configuración general de Home Assistant.
+
+No necesita el puente Wi-Fi de eufy. El uso normal es local; el acceso a la nube
+de eufy se usa durante la configuración para obtener las credenciales. También
+se pueden introducir manualmente.
+
+## Instalación por HACS
+
+[![Agregar a HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=dgg006&repository=ha-eufy-lock-ble&category=integration)
+
+Con HACS instalado, pulsá el botón, confirmá el repositorio e instalá
+**eufy Smart Lock (BLE)**. Luego reiniciá Home Assistant y agregá la integración
+desde **Ajustes → Dispositivos y servicios**.
+
+También podés agregarlo manualmente:
+
+1. En HACS, abrí **Repositorios personalizados**.
+2. Agregá `https://github.com/dgg006/ha-eufy-lock-ble`, categoría **Integración**.
+3. Instalá **eufy Smart Lock (BLE)** y reiniciá Home Assistant.
+4. En **Ajustes → Dispositivos y servicios**, agregá la integración.
+5. Cerrá la app eufy mientras se conecta HA y seguí el formulario.
+
+Conserva el dominio `eufy_lock_ble` para facilitar la migración. No instales esta
+versión y la original simultáneamente. La instalación mediante repositorio
+personalizado y la admisión al catálogo predeterminado de HACS son pasos distintos.
+
+## Zona horaria automática
+
+Se utiliza la zona configurada en **Home Assistant**, no la de la PC ni un país fijo.
+Se calculan los dos campos del protocolo al iniciar cada sesión Bluetooth, incluido
+el horario de verano cuando corresponda. No hay que introducir UTC−3 ni editar archivos.
+El país solicitado al iniciar sesión en eufy selecciona el servidor de la cuenta;
+no determina la zona horaria de la cerradura.
+
+La versión 0.2.0 corrige dos valores que antes estaban fijados en UTC−4. Esa
+inconsistencia podía permitir la conexión y luego provocar rechazos `0x42`.
+
+## Entidades y límites
+
+Permite bloquear y desbloquear, consultar estado y batería, y leer volumen,
+cierre automático y opciones de protección. Los ajustes se muestran como lectura.
+No administra usuarios, huellas, códigos PIN ni registros de acceso.
+
+La cerradura acepta una conexión Bluetooth a la vez. El modo persistente permite
+actualizaciones en vivo; el modo bajo demanda libera la conexión entre operaciones.
+
+## Privacidad y soporte
+
+Cada usuario configura sus propios datos. La contraseña y el token de inicio de
+sesión en eufy no se guardan en la entrada de configuración. Las credenciales de la
+cerradura quedan en el almacenamiento local de HA. Los diagnósticos de la integración
+ocultan identificadores y las trazas no incluyen cuerpos de paquetes BLE.
+
+No publiques archivos de `.storage`, exportaciones de la cuenta ni capturas Bluetooth.
+Los registros de componentes ajenos pueden contener identificadores: revisalos antes
+de adjuntarlos. [Alcance de la privacidad](PRIVACY.md).
+
+Al informar un problema, indicá modelo, firmware, versión de HA y código de error.
+No hace falta incluir el número de serie completo, la MAC ni tus credenciales.
+
+Proyecto comunitario independiente de eufy/Anker.

@@ -1,0 +1,176 @@
+{
+  "config": {
+    "flow_title": "{name}",
+    "step": {
+      "user": {
+        "title": "Choisissez votre serrure eufy",
+        "description": "Serrures détectées à proximité (via un adaptateur Bluetooth ou un proxy Bluetooth ESPHome). Fermez d'abord l'application eufy : la serrure n'accepte qu'une seule connexion Bluetooth.",
+        "data": {
+          "address": "Appareil"
+        }
+      },
+      "manual": {
+        "title": "Adresse Bluetooth",
+        "data": {
+          "address": "Adresse Bluetooth (AA:BB:CC:DD:EE:FF)"
+        }
+      },
+      "credentials": {
+        "title": "Identifiants de la serrure",
+        "description": "Secrets propres à la serrure {address}. Ils ont été préremplis depuis votre compte eufy si vous vous êtes connecté ; sinon récupérez-les une fois avec `tools/fetch_ids.mjs` (voir README) : le numéro de série complet (16 caractères), l'`admin_user_id` (40 hex) et la clé publique P-256 statique de la serrure (128 hex).",
+        "data": {
+          "name": "Nom",
+          "serial": "Numéro de série",
+          "admin_user_id": "Admin user ID (40 hex)",
+          "lock_public_key": "Clé publique de la serrure (128 hex)",
+          "short_user_id": "Short user ID",
+          "nickname": "Surnom affiché dans le journal de la serrure",
+          "skip_verify": "Ignorer le test de connexion"
+        },
+        "data_description": {
+          "short_user_id": "Généralement 0 pour le propriétaire du compte.",
+          "nickname": "Le surnom (masqué) du compte, ex. `abc***`. Laissez vide si inconnu.",
+          "skip_verify": "Enregistrer sans se connecter (ex. serrure hors de portée pour l'instant)."
+        }
+      },
+      "account": {
+        "title": "Compte eufy",
+        "description": "Serrure {name} ({address}). Home Assistant se connecte une fois à votre compte eufy pour récupérer les secrets nécessaires à cette serrure (numéro de série, admin user ID, clé publique). Le mot de passe ne sert qu'à cette connexion et n'est pas conservé. Cochez la dernière case pour saisir les secrets vous-même.",
+        "data": {
+          "email": "Courriel",
+          "password": "Mot de passe",
+          "country": "Pays du compte eufy",
+          "manual_credentials": "Saisir les identifiants de la serrure manuellement"
+        },
+        "data_description": {
+          "country": "Le pays choisi à la création du compte eufy ; il détermine le serveur eufy qui héberge vos appareils."
+        }
+      },
+      "captcha": {
+        "title": "Captcha",
+        "description": "eufy demande un captcha avant d'accepter la connexion.\n\n{captcha}",
+        "data": {
+          "captcha_code": "Caractères affichés dans l'image"
+        }
+      },
+      "verify_code": {
+        "title": "Code de vérification",
+        "description": "eufy a envoyé un code de vérification par courriel à {email}. Saisissez-le ci-dessous.",
+        "data": {
+          "verify_code": "Code de vérification"
+        }
+      },
+      "select_lock": {
+        "title": "Quelle serrure est-ce ?",
+        "description": "Aucune serrure du compte n'annonce l'adresse Bluetooth {address}. Choisissez celle que vous configurez.",
+        "data": {
+          "lock": "Serrure"
+        }
+      }
+    },
+    "error": {
+      "invalid_address": "Adresse Bluetooth invalide.",
+      "invalid_serial": "Le numéro de série doit compter 8 à 16 lettres/chiffres.",
+      "invalid_admin_user_id": "L'admin user ID doit faire exactement 40 caractères hexadécimaux.",
+      "invalid_public_key": "La clé publique doit faire 128 caractères hex (X‖Y) et être un point P-256 valide.",
+      "invalid_short_user_id": "Le short user ID doit être compris entre 0 et 65535.",
+      "invalid_nickname": "Le surnom est trop long.",
+      "serial_mismatch": "La serrure annonce un autre numéro de série.",
+      "not_in_range": "Aucun adaptateur ou proxy Bluetooth ne voit cette serrure actuellement.",
+      "cannot_connect": "Connexion à la serrure impossible. Vérifiez que l'application eufy est fermée.",
+      "handshake_rejected": "La serrure a refusé les identifiants. Vérifiez l'admin user ID, la clé publique, ainsi que l'heure et le fuseau horaire de Home Assistant.",
+      "unknown": "Erreur inattendue.",
+      "invalid_auth": "Courriel ou mot de passe invalide.",
+      "locked_out": "eufy bloque temporairement les connexions à ce compte après trop de tentatives. Patientez puis réessayez.",
+      "cannot_connect_cloud": "Impossible de joindre le cloud eufy.",
+      "invalid_captcha": "Réponse au captcha refusée ; essayez la nouvelle image.",
+      "invalid_verify_code": "Code de vérification refusé ou expiré. Un nouveau code a peut-être été envoyé.",
+      "no_locks": "Aucune serrure trouvée sur ce compte eufy."
+    },
+    "abort": {
+      "already_configured": "Cette serrure est déjà configurée.",
+      "already_in_progress": "La configuration est déjà en cours.",
+      "no_devices_found": "Aucune serrure eufy trouvée."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Options de la serrure eufy",
+        "data": {
+          "keep_connected": "Rester connecté (état en direct)",
+          "poll_interval": "Intervalle d'interrogation (secondes)"
+        },
+        "data_description": {
+          "keep_connected": "Garde la session Bluetooth ouverte pour que la serrure pousse les changements d'état immédiatement. L'application eufy ne peut pas se connecter pendant ce temps.",
+          "poll_interval": "Fréquence de lecture de l'état et des paramètres."
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "connected": {
+        "name": "Connecté"
+      },
+      "auto_lock": {
+        "name": "Verrouillage automatique"
+      },
+      "auto_lock_schedule": {
+        "name": "Horaire du verrouillage automatique"
+      },
+      "one_touch_lock": {
+        "name": "Verrouillage à une touche"
+      },
+      "wrong_try_protect": {
+        "name": "Protection contre les essais erronés"
+      },
+      "scramble_passcode": {
+        "name": "Code brouillé"
+      }
+    },
+    "sensor": {
+      "rssi": {
+        "name": "Puissance du signal"
+      },
+      "parameters": {
+        "name": "Paramètres"
+      },
+      "auto_lock_timer": {
+        "name": "Délai de verrouillage automatique"
+      },
+      "auto_lock_schedule_start": {
+        "name": "Début de l'horaire de verrouillage automatique"
+      },
+      "auto_lock_schedule_end": {
+        "name": "Fin de l'horaire de verrouillage automatique"
+      },
+      "wrong_try_lockdown": {
+        "name": "Blocage après essais erronés"
+      },
+      "wrong_try_attempts": {
+        "name": "Essais erronés tolérés"
+      },
+      "sound_volume": {
+        "name": "Volume sonore",
+        "state": {
+          "silent": "Silencieux",
+          "low": "Faible",
+          "medium": "Moyen",
+          "high": "Fort"
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "refused": {
+      "message": "La serrure a refusé la commande (résultat {result}). Vérifiez l'heure de Home Assistant."
+    },
+    "unreachable": {
+      "message": "La serrure n'est pas connectée ou hors de portée."
+    },
+    "communication_error": {
+      "message": "La communication avec la serrure a échoué : {error}"
+    }
+  }
+}
