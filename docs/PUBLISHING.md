@@ -4,7 +4,7 @@ Public repository: [dgg006/ha-eufy-lock-ble](https://github.com/dgg006/ha-eufy-l
 The README installation buttons open this custom repository in HACS.
 No default catalog acceptance is implied.
 
-## Before the first public release
+## Before each public release
 
 1. Review the diff against the MIT-licensed upstream project. Keep its license and credits.
 2. Confirm the repository owner/name matches `manifest.json`, README links and issue links.
@@ -12,7 +12,7 @@ No default catalog acceptance is implied.
    checks require the actual repository and cannot be confirmed by a local file inspection.
 4. Review the exact source archive and its file list. Do not upload the investigation
    directory, account credentials, original app binaries or a Home Assistant backup.
-5. Publish a GitHub release `v0.2.0` matching the integration manifest version.
+5. Publish a GitHub release matching the integration manifest version (currently `v0.3.0`).
 
 The release workflow creates `eufy_lock_ble.zip`, with integration files at its
 root. HACS currently installs from the repository's standard `custom_components`

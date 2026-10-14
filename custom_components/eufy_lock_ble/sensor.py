@@ -88,6 +88,10 @@ async def async_setup_entry(
         EufyBatterySensor(coordinator),
         EufyRssiSensor(coordinator),
         EufyParamsSensor(coordinator),
+        *[EufyHistorySensor(coordinator, key) for key in (
+            "last_event", "last_unlock_method", "last_unlock_user", "last_event_time",
+            "last_unlock_time", "history_status", "history", "history_raw",
+        )],
     ]
     entities.extend(EufyParamSensor(coordinator, desc) for desc in PARAM_SENSORS)
     async_add_entities(entities)
@@ -193,3 +197,78 @@ class EufyParamsSensor(EufyLockEntity, SensorEntity):
             f"{tag:02x}": raw.hex() for tag, raw in sorted(self.coordinator.params.items())
         }
         return attrs
+
+
+class EufyHistorySensor(EufyLockEntity, SensorEntity):
+    """Last access, read status, or an optional bounded history view."""
+
+    _attr_icon = "mdi:history"
+    _unrecorded_attributes = frozenset({"records"})
+
+    def __init__(self, coordinator: EufyLockCoordinator, key: str) -> None:
+        super().__init__(coordinator, key)
+        self._key = key
+        self._attr_translation_key = key
+        if key in {"last_event_time", "last_unlock_time"}:
+            self._attr_device_class = SensorDeviceClass.TIMESTAMP
+        if key in {"history", "history_raw"}:
+            self._attr_entity_registry_enabled_default = False
+        if key in {"history", "history_raw", "history_status"}:
+            self._attr_entity_category = EntityCategory.DIAGNOSTIC
+
+    @property
+    def available(self) -> bool:
+        """Retain locally cached access details even while Bluetooth is down."""
+        return self._key == "history_status" or bool(self.coordinator.history.records)
+
+    @property
+    def native_value(self) -> Any:
+        """Report only what the lock actually supplied."""
+        from homeassistant.util import dt as dt_util
+
+        history = self.coordinator.history
+        record = history.latest
+        unlock = history.latest_unlock
+        if self._key == "history_status":
+            return self.coordinator.history_status
+        if self._key in {"history", "history_raw"}:
+            return len(history.records)
+        if self._key == "last_event":
+            return record.event_type if record else None
+        if self._key == "last_unlock_method":
+            return unlock.method if unlock else None
+        if self._key == "last_unlock_user":
+            if unlock and unlock.method in {"manual", "automatic", "one_key"}:
+                return None
+            return (unlock.nickname or unlock.user_id or None) if unlock else None
+        if self._key == "last_event_time":
+            return dt_util.utc_from_timestamp(record.timestamp) if record else None
+        if self._key == "last_unlock_time":
+            return dt_util.utc_from_timestamp(unlock.timestamp) if unlock else None
+        return None
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Keep personal access data local; raw frames are available only on opt-in."""
+        from .history import HISTORY_LIMIT
+
+        if self._key in {"history", "history_raw"}:
+            return {"records": [
+                record.as_dict(include_raw=self._key == "history_raw")
+                for record in self.coordinator.history.records
+            ], "limit": HISTORY_LIMIT}
+        if self._key == "history_status":
+            return {
+                "baseline_complete": self.coordinator.history.initialized,
+                "last_complete_sync": (
+                    self.coordinator.history_last_sync.isoformat()
+                    if self.coordinator.history_last_sync else None
+                ),
+                "scan_pages": self.coordinator.history_pages,
+                "cached_records": len(self.coordinator.history.records),
+            }
+        record = (
+            self.coordinator.history.latest_unlock
+            if self._key.startswith("last_unlock_") else self.coordinator.history.latest
+        )
+        return record.as_dict() if record else {}

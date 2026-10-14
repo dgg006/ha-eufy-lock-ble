@@ -7,6 +7,9 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 FORBIDDEN_NAMES = {"ha_access.json", "fetch_out.json", "adbkey", "adbkey.pub", "secrets.yaml"}
+FORBIDDEN_NAMES |= {
+    "history-live-readings.json", "history-private-cache.json", "history-physical-events.json",
+}
 FORBIDDEN_SUFFIXES = {".apk", ".apks", ".dex", ".so", ".pcap", ".pcapng", ".pem", ".key"}
 PATTERNS = {
     "JWT token": re.compile(rb"eyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}"),
@@ -27,7 +30,7 @@ def main() -> int:
         path = ROOT / name
         if not path.is_file():
             continue
-        if path.name in FORBIDDEN_NAMES or path.suffix in FORBIDDEN_SUFFIXES:
+        if path.name in FORBIDDEN_NAMES or path.suffix in FORBIDDEN_SUFFIXES or ".storage" in path.parts:
             failures.append((name, "local/private file type"))
         if path.suffix not in {".png", ".jpg", ".jpeg", ".webp"}:
             data = path.read_bytes()

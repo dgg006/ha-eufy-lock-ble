@@ -28,6 +28,7 @@ from cryptography.hazmat.primitives.asymmetric.ec import (
 )
 
 from . import crypto, protocol
+from .history import HistoryPage, build_history_request, parse_history_page
 from .protocol import Cmd, Frame, LockStatus, ProtocolError, SessionInfo
 
 _LOGGER = logging.getLogger(__name__)
@@ -346,6 +347,20 @@ class LockSession:
         if self._on_params is not None:
             self._on_params(params)
         return params
+
+    async def get_history_page(self, index: int = 0) -> HistoryPage:
+        """Read a page of access records without acknowledging or deleting them."""
+        plaintext = await self._command(
+            Cmd.RECORD_LOG, build_history_request(index, int(self._now().timestamp()))
+        )
+        if not plaintext:
+            raise SessionError("empty history response")
+        if plaintext[0] not in (protocol.RESULT_OK, 0x41):
+            raise LockRefusedError(Cmd.RECORD_LOG, plaintext[0])
+        try:
+            return parse_history_page(plaintext)
+        except ProtocolError as err:
+            raise SessionError(f"invalid history response: {err}") from err
 
     async def heartbeat(self) -> None:
         """Keep-alive; the lock answers with a bare result byte."""

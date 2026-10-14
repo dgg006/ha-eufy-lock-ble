@@ -159,6 +159,35 @@
           "medium": "Moyen",
           "high": "Fort"
         }
+      },
+      "last_event": {
+        "name": "Dernier événement"
+      },
+      "last_unlock_method": {
+        "name": "Méthode du dernier déverrouillage"
+      },
+      "last_unlock_user": {
+        "name": "Dernier utilisateur"
+      },
+      "last_event_time": {
+        "name": "Date du dernier événement"
+      },
+      "last_unlock_time": {
+        "name": "Date du dernier déverrouillage"
+      },
+      "history_status": {
+        "name": "État de l’historique"
+      },
+      "history": {
+        "name": "Historique des accès"
+      },
+      "history_raw": {
+        "name": "Historique brut des accès"
+      }
+    },
+    "event": {
+      "activity": {
+        "name": "Activité"
       }
     }
   },

@@ -45,6 +45,9 @@ class FakeLock:
         self.received: list[tuple[int, bytes]] = []  # (cmd, plaintext)
         self.notify_delay = 0.0
         self.refuse_actuation = False
+        self.history_records: list[bytes] = []
+        self.history_result: int | None = None
+        self.history_page_size = 4
         self.params = {
             0xA1: b"\x02",
             0xA2: b"\x00",
@@ -98,6 +101,7 @@ class FakeLock:
             Cmd.QUERY_STATUS: self._handle_status,
             Cmd.GET_PARAMS: self._handle_params,
             Cmd.ON_OFF: self._handle_on_off,
+            Cmd.RECORD_LOG: self._handle_history,
         }[frame.cmd]
         handler(frame.cmd, plaintext)
 
@@ -143,6 +147,17 @@ class FakeLock:
             cmd,
             bytes([protocol.RESULT_OK]) + protocol.build_tlv(sorted(self.params.items())),
         )
+
+    def _handle_history(self, cmd: int, plaintext: bytes) -> None:
+        tlv = protocol.parse_tlv(plaintext)
+        assert len(tlv[Tag.A1]) == 2 and len(tlv[Tag.A2]) == 4
+        if self.history_result is not None:
+            self._reply(cmd, bytes([self.history_result]))
+            return
+        index = int.from_bytes(tlv[Tag.A1], "little")
+        page = self.history_records[index:index + self.history_page_size]
+        end = index + len(page) >= len(self.history_records)
+        self._reply(cmd, bytes([0x41 if end else 0x00]) + b"".join(page))
 
     def _handle_on_off(self, cmd: int, plaintext: bytes) -> None:
         tlv = protocol.parse_tlv(plaintext)

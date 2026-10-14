@@ -63,7 +63,18 @@ inconsistencia podía permitir la conexión y luego provocar rechazos `0x42`.
 
 Permite bloquear y desbloquear, consultar estado y batería, y leer volumen,
 cierre automático y opciones de protección. Los ajustes se muestran como lectura.
-No administra usuarios, huellas, códigos PIN ni registros de acceso.
+Desde 0.3.0 también consulta el historial por Bluetooth: último evento, método,
+usuario y hora del último desbloqueo, y una entidad de actividad para automatizaciones.
+El historial de los últimos 100 registros y sus bytes originales se pueden habilitar
+como sensores adicionales. Los códigos desconocidos se conservan para analizarlos.
+
+Los nombres e identificadores se muestran tal como los informa la cerradura.
+Una acción «manual» no confirma si se usó la llave o el giro interior, ni quién lo hizo.
+Al iniciar, los registros existentes se cargan sin disparar eventos; los nuevos
+recibidos con más de dos minutos de retraso llevan `historical: true`.
+[Detalles del historial y automatizaciones](docs/ACCESS_EVENTS.md).
+
+No administra usuarios, huellas ni códigos PIN, y no borra registros de acceso.
 
 La cerradura acepta una conexión Bluetooth a la vez. El modo persistente permite
 actualizaciones en vivo; el modo bajo demanda libera la conexión entre operaciones.

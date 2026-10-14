@@ -16,6 +16,10 @@ Examples and tests use synthetic identifiers and locally generated test keys.
   Home Assistant Bluetooth proxy. Setup country selects the eufy account server;
   the identity timezone comes from Home Assistant's configured timezone.
 - This integration adds no analytics endpoint or reporting service.
+- Access records contain household names, user IDs, methods and timestamps. The
+  latest 100 records and their original bytes remain in HA's local history cache;
+  removing the integration entry deletes that cache. Enabled history sensors and
+  activity entities expose these data within HA and may be recorded there.
 
 ## Diagnostics and logging
 
@@ -23,6 +27,8 @@ Integration diagnostics redact address, serial, name, account IDs, nickname,
 credentials and nested token/password fields. They retain operational information
 such as firmware, connectivity, battery, times and recognized settings for support.
 Unknown parameter bytes are omitted from the diagnostics export.
+Access-history records, names, user IDs, event times and raw bytes are also omitted;
+only history read status, baseline completion and record count are included.
 
 Integration debug logs record command IDs and lengths instead of raw BLE payloads.
 The credential helper prints only credentials for the explicitly selected lock,

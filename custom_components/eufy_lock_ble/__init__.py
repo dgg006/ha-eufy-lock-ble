@@ -8,6 +8,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_ADDRESS
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryError
+from homeassistant.helpers.storage import Store
 
 from .const import (
     CONF_ADMIN_USER_ID,
@@ -15,6 +16,7 @@ from .const import (
     CONF_NICKNAME,
     CONF_SERIAL,
     CONF_SHORT_USER_ID,
+    DOMAIN,
     PLATFORMS,
 )
 from .coordinator import EufyLockCoordinator
@@ -68,3 +70,8 @@ async def async_unload_entry(hass: HomeAssistant, entry: EufyLockConfigEntry) ->
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
     await entry.runtime_data.async_stop()
     return unload_ok
+
+
+async def async_remove_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Delete the private access-history cache when the lock is removed."""
+    await Store(hass, 1, f"{DOMAIN}_history_{entry.entry_id}").async_remove()

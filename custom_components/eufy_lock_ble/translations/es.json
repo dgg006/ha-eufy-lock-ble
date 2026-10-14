@@ -1,0 +1,35 @@
+{
+  "entity": {
+    "sensor": {
+      "last_event": {
+        "name": "Último evento"
+      },
+      "last_unlock_method": {
+        "name": "Método del último desbloqueo"
+      },
+      "last_unlock_user": {
+        "name": "Usuario del último desbloqueo"
+      },
+      "last_event_time": {
+        "name": "Hora del último evento"
+      },
+      "last_unlock_time": {
+        "name": "Hora del último desbloqueo"
+      },
+      "history_status": {
+        "name": "Estado del historial"
+      },
+      "history": {
+        "name": "Historial de accesos"
+      },
+      "history_raw": {
+        "name": "Historial de accesos sin procesar"
+      }
+    },
+    "event": {
+      "activity": {
+        "name": "Actividad"
+      }
+    }
+  }
+}

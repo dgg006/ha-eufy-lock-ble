@@ -159,6 +159,35 @@
           "medium": "Medium",
           "high": "High"
         }
+      },
+      "last_event": {
+        "name": "Last event"
+      },
+      "last_unlock_method": {
+        "name": "Last unlock method"
+      },
+      "last_unlock_user": {
+        "name": "Last unlock user"
+      },
+      "last_event_time": {
+        "name": "Last event time"
+      },
+      "last_unlock_time": {
+        "name": "Last unlock time"
+      },
+      "history_status": {
+        "name": "History status"
+      },
+      "history": {
+        "name": "Access history"
+      },
+      "history_raw": {
+        "name": "Raw access history"
+      }
+    },
+    "event": {
+      "activity": {
+        "name": "Activity"
       }
     }
   },

@@ -37,6 +37,7 @@ from homeassistant.components.bluetooth import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.event import async_call_later
+from homeassistant.helpers.storage import Store
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from homeassistant.util import dt as dt_util
 
@@ -69,6 +70,8 @@ from .eufy_ble import (
     SessionError,
     SessionInfo,
 )
+from .eufy_ble.history import LockRecord, parse_history_page
+from .history import FRESH_EVENT_SECONDS, HistoryTracker
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -135,6 +138,18 @@ class EufyLockCoordinator(DataUpdateCoordinator[None]):
         self.last_state_change: datetime | None = None
         self.connected_since: datetime | None = None
         self.disconnects = 0
+        self.history = HistoryTracker()
+        self.history_status = "pending"
+        self.history_last_sync: datetime | None = None
+        self.history_pages = 0
+        self._history_index = 0
+        self._history_rows = 0
+        self._history_page_ids: set[tuple[str, ...]] = set()
+        self._history_retry_at = 0.0
+        self._history_refresh_cancel: Callable[[], None] | None = None
+        self._history_task: asyncio.Task[None] | None = None
+        self.history_listeners: list[Callable[[LockRecord], None]] = []
+        self._history_store = Store(hass, 1, f"{DOMAIN}_history_{entry.entry_id}")
 
         # connection state
         self._ble_device: BLEDevice | None = None
@@ -230,6 +245,14 @@ class EufyLockCoordinator(DataUpdateCoordinator[None]):
     # ------------------------------------------------------------- lifecycle
     async def async_start(self) -> None:
         """Register Bluetooth callbacks and start the connection loop."""
+        cached = await self._history_store.async_load()
+        if isinstance(cached, dict):
+            try:
+                raw = b"".join(bytes.fromhex(value) for value in cached.get("records", [])[:100])
+                page = parse_history_page(b"\x41" + raw)
+                self.history.ingest(page.records, complete=False, now=dt_util.utcnow().timestamp())
+            except (ValueError, TypeError):
+                _LOGGER.debug("Ignoring invalid local history cache")
         self._unsub_bt.append(
             bluetooth.async_register_callback(
                 self.hass,
@@ -256,6 +279,13 @@ class EufyLockCoordinator(DataUpdateCoordinator[None]):
         self._stop.set()
         self._wake.set()
         self._cancel_refresh_timers()
+        if self._history_refresh_cancel is not None:
+            self._history_refresh_cancel()
+            self._history_refresh_cancel = None
+        if self._history_task is not None:
+            self._history_task.cancel()
+            with contextlib.suppress(asyncio.CancelledError):
+                await self._history_task
         for unsub in self._unsub_bt:
             unsub()
         self._unsub_bt.clear()
@@ -399,7 +429,12 @@ class EufyLockCoordinator(DataUpdateCoordinator[None]):
                         await session.get_params()
                     except SessionError as err:
                         _LOGGER.debug("get_params failed: %s", str(err) if isinstance(err, SessionError) else type(err).__name__)
+                    await self._async_read_history(session)
                 self.async_set_updated_data(None)
+                if self.history_status == "reading" and self._history_refresh_cancel is None:
+                    self._history_refresh_cancel = async_call_later(
+                        self.hass, 0.5, self._schedule_history_refresh
+                    )
                 backoff = RECONNECT_MIN_BACKOFF
                 await self._heartbeat_until_disconnect(session)
                 # a healthy session was closed by the peer: not a failure, reconnect at once
@@ -443,6 +478,7 @@ class EufyLockCoordinator(DataUpdateCoordinator[None]):
                 if not session.authenticated:
                     return
                 await session.heartbeat()
+                await self._async_read_history(session)
 
     # -------------------------------------------------------------- session ops
     async def _with_session(self, op: Callable[[LockSession], Awaitable[_T]]) -> _T:
@@ -474,6 +510,7 @@ class EufyLockCoordinator(DataUpdateCoordinator[None]):
                 await session.get_params()
             except SessionError as err:
                 _LOGGER.debug("get_params failed: %s", str(err) if isinstance(err, SessionError) else type(err).__name__)
+            await self._async_read_history(session)
 
         try:
             await self._with_session(_refresh)
@@ -503,6 +540,98 @@ class EufyLockCoordinator(DataUpdateCoordinator[None]):
 
         await self._with_session(_actuate)
 
+    async def _async_read_history(self, session: LockSession, *, force: bool = False) -> None:
+        """Read in small chunks so long histories cannot monopolise the BLE link."""
+        now = dt_util.utcnow()
+        if not force and now.timestamp() < self._history_retry_at:
+            return
+        if self.history_status.startswith("refused_") and now.timestamp() < self._history_retry_at:
+            return
+        try:
+            # Resume unfinished scans. The app requests cumulative row count minus
+            # one for subsequent pages; overlap is removed by record_id.
+            for _ in range(4):
+                page = await session.get_history_page(self._history_index)
+                page_ids = tuple(record.record_id for record in page.records)
+                repeated = bool(page_ids) and page_ids in self._history_page_ids
+                self._history_page_ids.add(page_ids)
+                self.history_pages += 1
+                for record in self.history.ingest(
+                    page.records, complete=page.complete, now=now.timestamp()
+                ):
+                    data = record.as_dict()
+                    data["historical"] = now.timestamp() - record.timestamp > FRESH_EVENT_SECONDS
+                    data["received_at"] = now.isoformat()
+                    self.hass.bus.async_fire(
+                        f"{DOMAIN}_event", {"config_entry_id": self.config_entry.entry_id, **data}
+                    )
+                    for listener in list(self.history_listeners):
+                        listener(record)
+                self._history_store.async_delay_save(
+                    lambda: {"records": [record.raw.hex() for record in self.history.records]}, 10
+                )
+                if page.complete:
+                    self.history_status = "ready"
+                    self.history_last_sync = now
+                    self._reset_history_scan()
+                    self._history_retry_at = now.timestamp() + 60
+                    break
+                self._history_rows += len(page.records)
+                next_index = max(0, self._history_rows - 1)
+                if repeated or not page.records or next_index <= self._history_index:
+                    self.history_status = "stalled"
+                    self._reset_history_scan()
+                    self._history_retry_at = now.timestamp() + 300
+                    break
+                if next_index > 65535:
+                    self.history_status = "truncated"
+                    self._reset_history_scan()
+                    self._history_retry_at = now.timestamp() + 300
+                    break
+                self._history_index = next_index
+                self.history_status = "reading"
+            else:
+                self._history_retry_at = 0  # continue at the next heartbeat/poll
+        except (SessionError, TimeoutError) as err:
+            # Optional history must never prevent locking, status or reconnecting.
+            self.history_status = (
+                f"refused_{err.result:02x}" if isinstance(err, LockRefusedError) else "error"
+            )
+            _LOGGER.debug("History read failed: %s", type(err).__name__)
+            self._reset_history_scan()
+            self._history_retry_at = now.timestamp() + 300
+        self.async_update_listeners()
+
+    def _reset_history_scan(self) -> None:
+        self._history_index = 0
+        self._history_rows = 0
+        self.history_pages = 0
+        self._history_page_ids.clear()
+
+    @callback
+    def _schedule_history_refresh(self, _now: datetime) -> None:
+        self._history_refresh_cancel = None
+        if self._stop.is_set() or (self._history_task and not self._history_task.done()):
+            return
+
+        async def refresh() -> None:
+            try:
+                while not self._stop.is_set():
+                    await self._with_session(
+                        lambda session: self._async_read_history(session, force=True)
+                    )
+                    if self.history_status != "reading":
+                        break
+                    # Release the coordinator lock between chunks so controls and
+                    # heartbeats can run while a large initial history is scanned.
+                    await asyncio.sleep(0.5)
+            except (LockUnreachableError, BleakError, SessionError, TimeoutError):
+                _LOGGER.debug("History refresh deferred until next connection")
+
+        self._history_task = self.config_entry.async_create_background_task(
+            self.hass, refresh(), name="eufy history refresh"
+        )
+
     # ----------------------------------------------------------- callbacks
     def _on_lock_state(self, status: LockStatus) -> None:
         locked = status.locked
@@ -510,6 +639,12 @@ class EufyLockCoordinator(DataUpdateCoordinator[None]):
             return
         if locked != self.is_locked:
             self.last_state_change = dt_util.utcnow()
+            if self.keep_connected and self.is_locked is not None and not self._stop.is_set():
+                if self._history_refresh_cancel is not None:
+                    self._history_refresh_cancel()
+                self._history_refresh_cancel = async_call_later(
+                    self.hass, 1, self._schedule_history_refresh
+                )
         self.is_locked = locked
         if status.battery is not None:
             self.battery = status.battery

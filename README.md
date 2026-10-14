@@ -33,6 +33,13 @@ does not by itself establish compatibility. [Model details and sources](docs/SUP
 
 ## What you get
 
+Version 0.3.0 also adds **Bluetooth access history**: last event, last unlock method,
+reported user, timestamps and an activity event entity. Optional history sensors
+retain the latest 100 records, including original bytes for unknown event codes.
+Existing startup history is not replayed as new activity. Delayed new records carry
+`historical: true`. A manual operation does not identify a physical-key user.
+[History, privacy and automation details](docs/ACCESS_EVENTS.md).
+
 | Entity | Type | Notes |
 |---|---|---|
 | `lock.<name>` | lock | `locked` / `unlocked`, lock and unlock actions. Attributes: `connected`, `rssi`, `last_state_change`. |

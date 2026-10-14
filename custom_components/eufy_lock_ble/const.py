@@ -7,7 +7,7 @@ from homeassistant.const import Platform
 DOMAIN = "eufy_lock_ble"
 MANUFACTURER = "eufy (Anker)"
 
-PLATFORMS: list[Platform] = [Platform.LOCK, Platform.SENSOR, Platform.BINARY_SENSOR]
+PLATFORMS: list[Platform] = [Platform.LOCK, Platform.SENSOR, Platform.BINARY_SENSOR, Platform.EVENT]
 
 # config entry data
 CONF_SERIAL = "serial"

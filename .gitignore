@@ -30,3 +30,7 @@ downloads/
 ha_original/
 logs/
 dist/
+history-private-*.json
+history-*-readings.json
+history-physical-*.json
+history-backup*/

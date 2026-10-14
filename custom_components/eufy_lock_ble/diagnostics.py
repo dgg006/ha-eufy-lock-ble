@@ -63,5 +63,12 @@ async def async_get_config_entry_diagnostics(
             "params": decode_params(
                 {tag: raw for tag, raw in coordinator.params.items() if tag in PARAM_NAMES}
             ),
+            # Access history contains household names and routines. Keep only
+            # operational health here; never attach the cached records or raw bytes.
+            "history": {
+                "status": coordinator.history_status,
+                "baseline_complete": coordinator.history.initialized,
+                "cached_records": len(coordinator.history.records),
+            },
         },
     }
