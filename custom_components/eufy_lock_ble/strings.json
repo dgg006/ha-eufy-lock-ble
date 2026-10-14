@@ -99,13 +99,35 @@
         "title": "eufy lock options",
         "data": {
           "keep_connected": "Stay connected (live state updates)",
-          "poll_interval": "Poll interval (seconds)"
+          "poll_interval": "Poll interval (seconds)",
+          "edit_user_names": "Edit user display names"
         },
         "data_description": {
           "keep_connected": "Keeps the Bluetooth session open so the lock pushes state changes immediately. The eufy app cannot connect while this is on.",
           "poll_interval": "How often to read the state and parameters."
         }
+      },
+      "select_user": {
+        "title": "Choose a lock user",
+        "data": {
+          "user_id": "User"
+        }
+      },
+      "user_name": {
+        "title": "User display name",
+        "description": "Reported name: {reported_name}. User ID: {user_id}. This changes only the local display name in Home Assistant.",
+        "data": {
+          "display_name": "Display name"
+        },
+        "data_description": {
+          "display_name": "Leave empty to restore the name reported by the lock. Maximum 64 characters."
+        }
       }
+    },
+    "error": {
+      "no_history_users": "No users are available yet. Wait for the lock history to load, then try again.",
+      "unknown_user": "Select a user from the list.",
+      "invalid_user_name": "Use a name of up to 64 characters without control characters."
     }
   },
   "entity": {

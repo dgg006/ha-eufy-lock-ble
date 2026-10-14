@@ -40,6 +40,11 @@ Existing startup history is not replayed as new activity. Delayed new records ca
 `historical: true`. A manual operation does not identify a physical-key user.
 [History, privacy and automation details](docs/ACCESS_EVENTS.md).
 
+Since 0.3.1, **Configure → Edit user display names** lets you select an observed
+user and set a local name. Leave it empty to restore the lock's reported name.
+Aliases apply to sensors, history and future events without reconnecting Bluetooth;
+stable user IDs and the original `reported_user_name` are retained.
+
 | Entity | Type | Notes |
 |---|---|---|
 | `lock.<name>` | lock | `locked` / `unlocked`, lock and unlock actions. Attributes: `connected`, `rssi`, `last_state_change`. |

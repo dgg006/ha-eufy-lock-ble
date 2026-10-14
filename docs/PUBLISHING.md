@@ -12,7 +12,7 @@ No default catalog acceptance is implied.
    checks require the actual repository and cannot be confirmed by a local file inspection.
 4. Review the exact source archive and its file list. Do not upload the investigation
    directory, account credentials, original app binaries or a Home Assistant backup.
-5. Publish a GitHub release matching the integration manifest version (currently `v0.3.0`).
+5. Publish a GitHub release matching the integration manifest version (currently `v0.3.1`).
 
 The release workflow creates `eufy_lock_ble.zip`, with integration files at its
 root. HACS currently installs from the repository's standard `custom_components`

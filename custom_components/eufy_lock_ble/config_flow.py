@@ -53,6 +53,7 @@ from .const import (
     MIN_POLL_INTERVAL,
     OPT_KEEP_CONNECTED,
     OPT_POLL_INTERVAL,
+    OPT_USER_ALIASES,
 )
 from .coordinator import LockUnreachableError, async_probe_lock
 from .eufy_ble import LockCredentials, SessionError
@@ -406,14 +407,41 @@ class EufyLockConfigFlow(ConfigFlow, domain=DOMAIN):
 
 
 class EufyLockOptionsFlow(OptionsFlow):
-    """Connection mode, polling and battery mapping."""
+    """Connection settings and local user display names."""
+
+    def __init__(self) -> None:
+        self._pending_options: dict[str, Any] = {}
+        self._known_users: dict[str, str] = {}
+        self._selected_user = ""
+
+    def _collect_users(self) -> dict[str, str]:
+        coordinator = getattr(self.config_entry, "runtime_data", None)
+        users: dict[str, str] = {}
+        if coordinator is not None:
+            for record in coordinator.history.records:
+                if record.user_id:
+                    users.setdefault(record.user_id, record.nickname or record.user_id)
+        for user_id in self.config_entry.options.get(OPT_USER_ALIASES, {}):
+            users.setdefault(user_id, user_id)
+        return users
 
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
-        """Show/handle the single options form."""
+        """Preserve aliases when saving ordinary connection settings."""
+        errors: dict[str, str] = {}
         if user_input is not None:
-            return self.async_create_entry(title="", data=user_input)
+            self._pending_options = {
+                **self.config_entry.options,
+                OPT_KEEP_CONNECTED: user_input[OPT_KEEP_CONNECTED],
+                OPT_POLL_INTERVAL: user_input[OPT_POLL_INTERVAL],
+            }
+            if not user_input.get("edit_user_names"):
+                return self.async_create_entry(title="", data=self._pending_options)
+            self._known_users = self._collect_users()
+            if self._known_users:
+                return await self.async_step_select_user()
+            errors["base"] = "no_history_users"
 
-        options = self.config_entry.options
+        options = self._pending_options or self.config_entry.options
         schema = vol.Schema(
             {
                 vol.Required(
@@ -426,6 +454,61 @@ class EufyLockOptionsFlow(OptionsFlow):
                 ): vol.All(
                     vol.Coerce(int), vol.Range(min=MIN_POLL_INTERVAL, max=MAX_POLL_INTERVAL)
                 ),
+                vol.Optional("edit_user_names", default=False): bool,
             }
         )
-        return self.async_show_form(step_id="init", data_schema=schema)
+        return self.async_show_form(step_id="init", data_schema=schema, errors=errors)
+
+    async def async_step_select_user(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Select a user from observed IDs or previously configured aliases."""
+        errors = {}
+        if user_input is not None:
+            if user_input["user_id"] in self._known_users:
+                self._selected_user = user_input["user_id"]
+                return await self.async_step_user_name()
+            errors["base"] = "unknown_user"
+        aliases = self._pending_options.get(OPT_USER_ALIASES, {})
+        choices = [
+            selector.SelectOptionDict(
+                value=user_id,
+                label=(f"{aliases[user_id]} ({reported})" if aliases.get(user_id) else reported),
+            )
+            for user_id, reported in sorted(self._known_users.items())
+        ]
+        return self.async_show_form(
+            step_id="select_user",
+            data_schema=vol.Schema({vol.Required("user_id"): selector.SelectSelector(
+                selector.SelectSelectorConfig(options=choices, mode=selector.SelectSelectorMode.DROPDOWN)
+            )}), errors=errors,
+        )
+
+    async def async_step_user_name(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Edit or remove one alias without renaming anything on the lock/cloud."""
+        errors = {}
+        aliases = dict(self._pending_options.get(OPT_USER_ALIASES, {}))
+        if user_input is not None:
+            name = user_input.get("display_name", "").strip()
+            if len(name) > 64 or any(ord(char) < 32 for char in name):
+                errors["display_name"] = "invalid_user_name"
+            else:
+                if name:
+                    aliases[self._selected_user] = name
+                else:
+                    aliases.pop(self._selected_user, None)
+                self._pending_options[OPT_USER_ALIASES] = aliases
+                return self.async_create_entry(title="", data=self._pending_options)
+        return self.async_show_form(
+            step_id="user_name",
+            description_placeholders={
+                "reported_name": self._known_users[self._selected_user],
+                "user_id": self._selected_user,
+            },
+            data_schema=vol.Schema({
+                vol.Optional("display_name", default=aliases.get(self._selected_user, "")):
+                    selector.TextSelector(),
+            }), errors=errors,
+        )

@@ -31,7 +31,20 @@ Only events actually returned by the connected lock appear as activity.
 
 ## Identity limitations
 
-The name and ID are the values reported by the lock, not an inferred HA person.
+The original name and ID are the values reported by the lock, not an inferred HA person.
+Starting in 0.3.1, local display aliases can be edited in the integration's Configure
+form: enable **Edit user display names**, select a user and enter a display name.
+Clear the field to remove an alias. Each alias belongs to a stable lock-user ID,
+not to a masked name. It remains configurable even if that user falls out of the
+100-record cache. The user must have been observed at least once to first select it.
+
+`user_name` is the local display name (alias if configured); `reported_user_name`
+retains the original lock name. `user_id`, raw records and deduplication IDs never
+change. Sensors and history update immediately; future events use the new name.
+Previously emitted events are not replayed or rewritten when a name is edited.
+Automations identifying a person should filter the stable `user_id`, since display
+names can change. Names are not sent back to eufy or written into the lock.
+
 Different fingerprints can identify different users only if the lock associates
 them with different user records. Multiple fingerprints belonging to one user
 may not be distinguishable. Empty fields stay empty; an ID is shown as a fallback
@@ -62,7 +75,8 @@ reliably distinguished. Overlapping pages are deduplicated.
 The event entity's state is **receipt time**; `occurred_at` is the lock's reported
 event time. For automations, listen for `eufy_lock_ble_event`. The payload includes
 `config_entry_id`, `record_id`, `timestamp`, `occurred_at`, `received_at`,
-`event_code`, `event_type`, `action`, `method`, `user_id`, `user_name` and `historical`.
+`event_code`, `event_type`, `action`, `method`, `user_id`, `user_name`,
+`reported_user_name` and `historical`.
 For actions that should happen only on a recent opening, filter explicitly:
 
 ```yaml

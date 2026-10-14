@@ -22,5 +22,5 @@
     "custom_components.eufy_lock_ble"
   ],
   "requirements": [],
-  "version": "0.3.0"
+  "version": "0.3.1"
 }

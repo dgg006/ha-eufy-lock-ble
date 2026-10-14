@@ -1,14 +1,17 @@
 # Release validation status
 
-Version: **0.3.0**. Prepared on 2026-10-14.
+Version: **0.3.1**. Prepared on 2026-10-14.
 Public repository: `dgg006/ha-eufy-lock-ble`.
 
 ## Completed locally
 
-- 112 tests passed, including timezone vectors, DST, encrypted sessions, cloud/setup
+- 114 tests passed, including timezone vectors, DST, encrypted sessions, cloud/setup
   flows, entities, rejection handling, diagnostics redaction and model identification.
   History checks cover encrypted queries, nonempty final pages, overlap, background
   pagination, stalled scans, delayed records, startup replay suppression and privacy.
+- Alias tests cover selecting observed users, editing/removing local names, keeping
+  aliases when connection settings change, stable record IDs, diagnostic redaction
+  and immediate sensor updates without reconnecting Bluetooth.
 - Ruff lint passed. Git whitespace validation passed.
 - Public file-boundary scan passed. The reviewed source tree contains no private
   access file, real installation export, account dump, APK/DEX/native app binary,

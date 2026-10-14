@@ -37,7 +37,7 @@ class EufyLockEvent(EufyLockEntity, EventEntity):
 
     @callback
     def _on_record(self, record: LockRecord) -> None:
-        data = record.as_dict()
+        data = self.coordinator.record_data(record)
         now = dt_util.utcnow()
         data["historical"] = now.timestamp() - record.timestamp > FRESH_EVENT_SECONDS
         data["received_at"] = now.isoformat()

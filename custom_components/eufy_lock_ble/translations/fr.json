@@ -99,13 +99,35 @@
         "title": "Options de la serrure eufy",
         "data": {
           "keep_connected": "Rester connecté (état en direct)",
-          "poll_interval": "Intervalle d'interrogation (secondes)"
+          "poll_interval": "Intervalle d'interrogation (secondes)",
+          "edit_user_names": "Modifier les noms des utilisateurs"
         },
         "data_description": {
           "keep_connected": "Garde la session Bluetooth ouverte pour que la serrure pousse les changements d'état immédiatement. L'application eufy ne peut pas se connecter pendant ce temps.",
           "poll_interval": "Fréquence de lecture de l'état et des paramètres."
         }
+      },
+      "select_user": {
+        "title": "Choisir un utilisateur",
+        "data": {
+          "user_id": "Utilisateur"
+        }
+      },
+      "user_name": {
+        "title": "Nom affiché de l’utilisateur",
+        "description": "Nom transmis : {reported_name}. Identifiant : {user_id}. Seul le nom local dans Home Assistant est modifié.",
+        "data": {
+          "display_name": "Nom affiché"
+        },
+        "data_description": {
+          "display_name": "Laisser vide pour rétablir le nom transmis par la serrure. Maximum 64 caractères."
+        }
       }
+    },
+    "error": {
+      "no_history_users": "Aucun utilisateur disponible. Attendez le chargement de l’historique.",
+      "unknown_user": "Choisissez un utilisateur de la liste.",
+      "invalid_user_name": "Maximum 64 caractères, sans caractères de contrôle."
     }
   },
   "entity": {

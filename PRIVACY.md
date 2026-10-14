@@ -16,6 +16,9 @@ Examples and tests use synthetic identifiers and locally generated test keys.
   Home Assistant Bluetooth proxy. Setup country selects the eufy account server;
   the identity timezone comes from Home Assistant's configured timezone.
 - This integration adds no analytics endpoint or reporting service.
+- Optional user display aliases are stored locally in the integration's options,
+  keyed by lock-user ID. The entire alias mapping is redacted from exported
+  diagnostics. Alias edits never rename cloud accounts or lock users.
 - Access records contain household names, user IDs, methods and timestamps. The
   latest 100 records and their original bytes remain in HA's local history cache;
   removing the integration entry deletes that cache. Enabled history sensors and

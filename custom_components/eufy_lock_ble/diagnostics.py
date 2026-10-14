@@ -15,10 +15,12 @@ from .const import (
     CONF_NICKNAME,
     CONF_SERIAL,
     CONF_SHORT_USER_ID,
+    OPT_USER_ALIASES,
 )
 from .eufy_ble.protocol import PARAM_NAMES, decode_params
 
 TO_REDACT = {
+    OPT_USER_ALIASES,
     CONF_ADDRESS,
     CONF_ADMIN_USER_ID,
     CONF_EMAIL,

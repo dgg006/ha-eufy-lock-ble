@@ -24,6 +24,7 @@ CONF_LOCK = "lock"
 # options
 OPT_KEEP_CONNECTED = "keep_connected"
 OPT_POLL_INTERVAL = "poll_interval"
+OPT_USER_ALIASES = "user_aliases"
 
 DEFAULT_KEEP_CONNECTED = True
 DEFAULT_POLL_INTERVAL = 300

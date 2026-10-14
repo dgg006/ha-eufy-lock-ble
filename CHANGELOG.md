@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.1
+
+- Add editable local user display names through the integration options form.
+- Resolve aliases by stable user ID in sensors, history and future activity events;
+  preserve the original reported name, raw records and deduplication identity.
+- Apply name-only edits without reconnecting Bluetooth or replaying events.
+- Preserve aliases when connection settings change and redact the alias mapping
+  from diagnostics. Clearing a name restores the original lock-reported name.
+
 ## 0.3.0
 
 - Read access history over Bluetooth without deleting lock records.

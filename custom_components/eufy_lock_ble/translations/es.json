@@ -31,5 +31,38 @@
         "name": "Actividad"
       }
     }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opciones de la cerradura eufy",
+        "data": {
+          "keep_connected": "Mantener conectado",
+          "poll_interval": "Intervalo de consulta (segundos)",
+          "edit_user_names": "Editar nombres de usuarios"
+        }
+      },
+      "select_user": {
+        "title": "Elegir usuario de la cerradura",
+        "data": {
+          "user_id": "Usuario"
+        }
+      },
+      "user_name": {
+        "title": "Nombre visible del usuario",
+        "description": "Nombre informado: {reported_name}. Identificador: {user_id}. Solo cambia el nombre mostrado en Home Assistant.",
+        "data": {
+          "display_name": "Nombre visible"
+        },
+        "data_description": {
+          "display_name": "Dejalo vacío para recuperar el nombre informado por la cerradura. Máximo 64 caracteres."
+        }
+      }
+    },
+    "error": {
+      "no_history_users": "Todavía no hay usuarios disponibles. Esperá a que cargue el historial y volvé a intentarlo.",
+      "unknown_user": "Elegí un usuario de la lista.",
+      "invalid_user_name": "Usá hasta 64 caracteres, sin caracteres de control."
+    }
   }
 }

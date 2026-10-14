@@ -74,6 +74,15 @@ Al iniciar, los registros existentes se cargan sin disparar eventos; los nuevos
 recibidos con más de dos minutos de retraso llevan `historical: true`.
 [Detalles del historial y automatizaciones](docs/ACCESS_EVENTS.md).
 
+### Nombres editables
+
+En **Ajustes → Dispositivos y servicios → eufy Smart Lock (BLE) → Configurar**,
+marcá **Editar nombres de usuarios**, elegí un usuario y escribí su **Nombre visible**.
+Dejá el campo vacío para recuperar el nombre que informa la cerradura. Repetí el
+proceso para otro usuario. Los alias son locales a Home Assistant y se aplican al
+historial, los sensores y los próximos eventos sin reconectar Bluetooth.
+El identificador de usuario y el nombre original siguen disponibles como atributos.
+
 No administra usuarios, huellas ni códigos PIN, y no borra registros de acceso.
 
 La cerradura acepta una conexión Bluetooth a la vez. El modo persistente permite

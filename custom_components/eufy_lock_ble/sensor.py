@@ -240,7 +240,7 @@ class EufyHistorySensor(EufyLockEntity, SensorEntity):
         if self._key == "last_unlock_user":
             if unlock and unlock.method in {"manual", "automatic", "one_key"}:
                 return None
-            return (unlock.nickname or unlock.user_id or None) if unlock else None
+            return self.coordinator.user_display_name(unlock) if unlock else None
         if self._key == "last_event_time":
             return dt_util.utc_from_timestamp(record.timestamp) if record else None
         if self._key == "last_unlock_time":
@@ -254,7 +254,7 @@ class EufyHistorySensor(EufyLockEntity, SensorEntity):
 
         if self._key in {"history", "history_raw"}:
             return {"records": [
-                record.as_dict(include_raw=self._key == "history_raw")
+                self.coordinator.record_data(record, include_raw=self._key == "history_raw")
                 for record in self.coordinator.history.records
             ], "limit": HISTORY_LIMIT}
         if self._key == "history_status":
@@ -271,4 +271,4 @@ class EufyHistorySensor(EufyLockEntity, SensorEntity):
             self.coordinator.history.latest_unlock
             if self._key.startswith("last_unlock_") else self.coordinator.history.latest
         )
-        return record.as_dict() if record else {}
+        return self.coordinator.record_data(record) if record else {}

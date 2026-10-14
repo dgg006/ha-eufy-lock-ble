@@ -16,7 +16,11 @@ from .const import (
     CONF_NICKNAME,
     CONF_SERIAL,
     CONF_SHORT_USER_ID,
+    DEFAULT_KEEP_CONNECTED,
+    DEFAULT_POLL_INTERVAL,
     DOMAIN,
+    OPT_KEEP_CONNECTED,
+    OPT_POLL_INTERVAL,
     PLATFORMS,
 )
 from .coordinator import EufyLockCoordinator
@@ -61,8 +65,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: EufyLockConfigEntry) -> 
 
 
 async def _async_update_listener(hass: HomeAssistant, entry: EufyLockConfigEntry) -> None:
-    """Reload on options change."""
-    await hass.config_entries.async_reload(entry.entry_id)
+    """Apply display-name edits immediately; reload only connection settings."""
+    coordinator = entry.runtime_data
+    if (
+        entry.options.get(OPT_KEEP_CONNECTED, DEFAULT_KEEP_CONNECTED) != coordinator.keep_connected
+        or entry.options.get(OPT_POLL_INTERVAL, DEFAULT_POLL_INTERVAL)
+        != coordinator.update_interval.total_seconds()
+    ):
+        await hass.config_entries.async_reload(entry.entry_id)
+    else:
+        coordinator.async_update_listeners()
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: EufyLockConfigEntry) -> bool:

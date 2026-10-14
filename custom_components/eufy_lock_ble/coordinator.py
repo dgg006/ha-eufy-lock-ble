@@ -18,7 +18,7 @@ from collections.abc import Awaitable, Callable
 import contextlib
 from datetime import datetime, timedelta
 import logging
-from typing import TypeVar
+from typing import Any, TypeVar
 
 from bleak.backends.device import BLEDevice
 from bleak.exc import BleakError
@@ -55,6 +55,7 @@ from .const import (
     OPERATION_CONNECT_WAIT,
     OPT_KEEP_CONNECTED,
     OPT_POLL_INTERVAL,
+    OPT_USER_ALIASES,
     RECONNECT_AFTER_DROP,
     RECONNECT_MAX_BACKOFF,
     RECONNECT_MIN_BACKOFF,
@@ -559,7 +560,7 @@ class EufyLockCoordinator(DataUpdateCoordinator[None]):
                 for record in self.history.ingest(
                     page.records, complete=page.complete, now=now.timestamp()
                 ):
-                    data = record.as_dict()
+                    data = self.record_data(record)
                     data["historical"] = now.timestamp() - record.timestamp > FRESH_EVENT_SECONDS
                     data["received_at"] = now.isoformat()
                     self.hass.bus.async_fire(
@@ -601,6 +602,21 @@ class EufyLockCoordinator(DataUpdateCoordinator[None]):
             self._reset_history_scan()
             self._history_retry_at = now.timestamp() + 300
         self.async_update_listeners()
+
+    def user_display_name(self, record: LockRecord) -> str | None:
+        """Resolve a local alias by stable lock user ID, never by a masked name."""
+        aliases = self.config_entry.options.get(OPT_USER_ALIASES, {})
+        alias = aliases.get(record.user_id) if isinstance(aliases, dict) else None
+        return (alias.strip() if isinstance(alias, str) and alias.strip() else None) or (
+            record.nickname or record.user_id or None
+        )
+
+    def record_data(self, record: LockRecord, *, include_raw: bool = False) -> dict[str, Any]:
+        """Apply presentation aliases without changing raw history or deduplication."""
+        data = record.as_dict(include_raw=include_raw)
+        data["reported_user_name"] = record.nickname or None
+        data["user_name"] = self.user_display_name(record)
+        return data
 
     def _reset_history_scan(self) -> None:
         self._history_index = 0
