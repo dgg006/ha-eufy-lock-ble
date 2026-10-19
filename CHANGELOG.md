@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.2
+
+- Add user-started ten-minute advertisement captures and annotation-only buttons
+  for fingerprint, passcode, physical key and interior thumb-turn tests.
+- Save local JSON outside `www`, with periodic checkpoints and bounded report count.
+- Pause automatic polling during capture while retaining explicit lock controls.
+- Use every-delivered-report capture on newer HA APIs; document changed-data-only
+  fallback and upstream scanner/proxy filtering limitations.
+
 ## 0.3.1
 
 - Add editable local user display names through the integration options form.

@@ -205,11 +205,41 @@
       },
       "history_raw": {
         "name": "Raw access history"
+      },
+      "bluetooth_capture": {
+        "name": "Bluetooth capture",
+        "state": {
+          "idle": "Idle",
+          "capturing": "Capturing",
+          "saved": "Saved",
+          "save_error": "Checkpoint save error",
+          "error": "Error"
+        }
       }
     },
     "event": {
       "activity": {
         "name": "Activity"
+      }
+    },
+    "button": {
+      "capture_start": {
+        "name": "Start Bluetooth capture"
+      },
+      "capture_stop": {
+        "name": "Stop Bluetooth capture"
+      },
+      "capture_fingerprint": {
+        "name": "Mark fingerprint test"
+      },
+      "capture_passcode": {
+        "name": "Mark passcode test"
+      },
+      "capture_physical_key": {
+        "name": "Mark physical key test"
+      },
+      "capture_thumbturn": {
+        "name": "Mark thumbturn test"
       }
     }
   },

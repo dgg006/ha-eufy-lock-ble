@@ -35,12 +35,15 @@ from homeassistant.components.bluetooth import (
     BluetoothServiceInfoBleak,
 )
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import EVENT_HOMEASSISTANT_STOP
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.event import async_call_later
 from homeassistant.helpers.storage import Store
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from homeassistant.util import dt as dt_util
 
+from .capture import AdvertisementCapture
 from .const import (
     ADV_NOTIFY_INTERVAL,
     AVAILABILITY_GRACE,
@@ -139,6 +142,7 @@ class EufyLockCoordinator(DataUpdateCoordinator[None]):
         self.last_state_change: datetime | None = None
         self.connected_since: datetime | None = None
         self.disconnects = 0
+        self.capture = AdvertisementCapture(hass, address, self.async_update_listeners)
         self.history = HistoryTracker()
         self.history_status = "pending"
         self.history_last_sync: datetime | None = None
@@ -246,6 +250,10 @@ class EufyLockCoordinator(DataUpdateCoordinator[None]):
     # ------------------------------------------------------------- lifecycle
     async def async_start(self) -> None:
         """Register Bluetooth callbacks and start the connection loop."""
+        async def stop_capture(_event) -> None:
+            await self.capture.async_shutdown()
+
+        self._unsub_bt.append(self.hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, stop_capture))
         cached = await self._history_store.async_load()
         if isinstance(cached, dict):
             try:
@@ -278,6 +286,7 @@ class EufyLockCoordinator(DataUpdateCoordinator[None]):
     async def async_stop(self) -> None:
         """Tear everything down."""
         self._stop.set()
+        await self.capture.async_shutdown()
         self._wake.set()
         self._cancel_refresh_timers()
         if self._history_refresh_cancel is not None:
@@ -504,6 +513,8 @@ class EufyLockCoordinator(DataUpdateCoordinator[None]):
 
     async def _async_update_data(self) -> None:
         """Periodic refresh: query bolt state and parameters."""
+        if self.capture.active:
+            return  # observe the disconnected lock without periodic GATT traffic
 
         async def _refresh(session: LockSession) -> None:
             await session.query_status()
@@ -521,6 +532,8 @@ class EufyLockCoordinator(DataUpdateCoordinator[None]):
     async def async_set_locked(self, lock: bool) -> None:
         """Lock or unlock, then wait for the confirming state change."""
         settled = asyncio.Event()
+        if self.capture.active:
+            self.capture.mark("ha_command")
         target = lock
 
         def _watch(state: bool) -> None:
@@ -540,6 +553,14 @@ class EufyLockCoordinator(DataUpdateCoordinator[None]):
                 self._state_watchers.remove(_watch)
 
         await self._with_session(_actuate)
+
+    async def async_start_capture(self) -> None:
+        """Observe advertisements with periodic polling paused for ten minutes."""
+        if self.keep_connected:
+            raise HomeAssistantError("Disable Keep connected before starting a Bluetooth capture")
+        async with self._conn_lock:
+            await self._async_disconnect()
+            await self.capture.async_start()
 
     async def _async_read_history(self, session: LockSession, *, force: bool = False) -> None:
         """Read in small chunks so long histories cannot monopolise the BLE link."""

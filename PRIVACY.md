@@ -43,6 +43,11 @@ anonymous. Review any file before posting it publicly.
 
 ## Public releases
 
+User-started Bluetooth captures are separate private files in the HA configuration
+directory, outside `www`. They contain the lock's Bluetooth identifiers and advertising
+bytes, not account credentials, aliases or the access-history cache. They are excluded
+from diagnostics and the public repository. Share capture files only privately.
+
 The public source and HACS archive contain only the reviewed repository files.
 Local access tokens, `.storage`, account dumps, reports from a real installation,
 APK/DEX/native app binaries and packet captures are excluded. The release workflow

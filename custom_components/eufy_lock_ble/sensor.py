@@ -88,6 +88,7 @@ async def async_setup_entry(
         EufyBatterySensor(coordinator),
         EufyRssiSensor(coordinator),
         EufyParamsSensor(coordinator),
+        EufyCaptureSensor(coordinator),
         *[EufyHistorySensor(coordinator, key) for key in (
             "last_event", "last_unlock_method", "last_unlock_user", "last_event_time",
             "last_unlock_time", "history_status", "history", "history_raw",
@@ -123,6 +124,39 @@ class EufyParamSensor(EufyLockEntity, SensorEntity):
         ):
             return None
         return value
+
+
+class EufyCaptureSensor(EufyLockEntity, SensorEntity):
+    """Capture progress and local output filename, without exposing radio payloads."""
+
+    _attr_translation_key = "bluetooth_capture"
+    _attr_device_class = SensorDeviceClass.ENUM
+    _attr_options = ["idle", "capturing", "saved", "save_error", "error"]
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+    _attr_icon = "mdi:bluetooth"
+
+    def __init__(self, coordinator: EufyLockCoordinator) -> None:
+        super().__init__(coordinator, "bluetooth_capture")
+
+    @property
+    def available(self) -> bool:
+        return True
+
+    @property
+    def native_value(self) -> str:
+        return self.coordinator.capture.status
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        capture = self.coordinator.capture
+        return {
+            "active": capture.active, "mode": capture.mode,
+            "reports": capture.reports, "distinct_payloads": capture.distinct_payloads,
+            "markers": capture.marker_count, "filename": capture.filename,
+            "started_at": capture.started_at.isoformat() if capture.started_at else None,
+            "ends_at": capture.ends_at.isoformat() if capture.ends_at else None,
+            "last_error": capture.last_error,
+        }
 
 
 class EufyBatterySensor(EufyLockEntity, SensorEntity):

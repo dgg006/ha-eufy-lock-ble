@@ -90,6 +90,12 @@ actualizaciones en vivo; el modo bajo demanda libera la conexión entre operacio
 
 ## Privacidad y soporte
 
+Para investigar avisos sin conexión permanente, la versión 0.3.2 añade botones
+de **captura Bluetooth** en el dispositivo. La captura dura diez minutos, permite
+marcar pruebas físicas y guarda un archivo local en HA para analizarlo después.
+Mientras captura, pausa las consultas automáticas; los marcadores no accionan
+la cerradura. [Guía de captura](docs/BLUETOOTH_CAPTURE.md).
+
 Cada usuario configura sus propios datos. La contraseña y el token de inicio de
 sesión en eufy no se guardan en la entrada de configuración. Las credenciales de la
 cerradura quedan en el almacenamiento local de HA. Los diagnósticos de la integración

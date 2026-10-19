@@ -30,7 +30,10 @@ def main() -> int:
         path = ROOT / name
         if not path.is_file():
             continue
-        if path.name in FORBIDDEN_NAMES or path.suffix in FORBIDDEN_SUFFIXES or ".storage" in path.parts:
+        if (
+            path.name in FORBIDDEN_NAMES or path.suffix in FORBIDDEN_SUFFIXES
+            or ".storage" in path.parts or "eufy_lock_ble_captures" in path.parts
+        ):
             failures.append((name, "local/private file type"))
         if path.suffix not in {".png", ".jpg", ".jpeg", ".webp"}:
             data = path.read_bytes()

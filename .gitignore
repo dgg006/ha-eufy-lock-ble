@@ -34,3 +34,4 @@ history-private-*.json
 history-*-readings.json
 history-physical-*.json
 history-backup*/
+eufy_lock_ble_captures/

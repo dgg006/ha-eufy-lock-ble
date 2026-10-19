@@ -24,11 +24,41 @@
       },
       "history_raw": {
         "name": "Historial de accesos sin procesar"
+      },
+      "bluetooth_capture": {
+        "name": "Captura Bluetooth",
+        "state": {
+          "idle": "Sin captura activa",
+          "capturing": "Capturando",
+          "saved": "Guardado",
+          "save_error": "Error al guardar copia",
+          "error": "Error"
+        }
       }
     },
     "event": {
       "activity": {
         "name": "Actividad"
+      }
+    },
+    "button": {
+      "capture_start": {
+        "name": "Iniciar captura Bluetooth"
+      },
+      "capture_stop": {
+        "name": "Detener captura Bluetooth"
+      },
+      "capture_fingerprint": {
+        "name": "Marcar prueba de huella"
+      },
+      "capture_passcode": {
+        "name": "Marcar prueba de código"
+      },
+      "capture_physical_key": {
+        "name": "Marcar prueba de llave"
+      },
+      "capture_thumbturn": {
+        "name": "Marcar prueba de giro interior"
       }
     }
   },

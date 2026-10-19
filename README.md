@@ -225,6 +225,11 @@ virtual environment.
 
 ## Privacy
 
+For offline advertisement investigation, 0.3.2 adds bounded, user-started Bluetooth
+captures with physical-test markers and private local JSON output. No GATT session
+is initiated by the collector, and periodic polling pauses for the capture.
+[Capture guide and limitations](docs/BLUETOOTH_CAPTURE.md).
+
 The repository contains application code and synthetic examples. Each user enters
 their own credentials during setup. Passwords and cloud login tokens are not saved
 in the config entry. Per-lock credentials stay in the user’s Home Assistant storage.

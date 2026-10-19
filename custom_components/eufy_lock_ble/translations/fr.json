@@ -205,11 +205,41 @@
       },
       "history_raw": {
         "name": "Historique brut des accès"
+      },
+      "bluetooth_capture": {
+        "name": "Capture Bluetooth",
+        "state": {
+          "idle": "Inactive",
+          "capturing": "Capture en cours",
+          "saved": "Enregistrée",
+          "save_error": "Erreur de sauvegarde",
+          "error": "Erreur"
+        }
       }
     },
     "event": {
       "activity": {
         "name": "Activité"
+      }
+    },
+    "button": {
+      "capture_start": {
+        "name": "Démarrer la capture Bluetooth"
+      },
+      "capture_stop": {
+        "name": "Arrêter la capture Bluetooth"
+      },
+      "capture_fingerprint": {
+        "name": "Marquer un test d’empreinte"
+      },
+      "capture_passcode": {
+        "name": "Marquer un test de code"
+      },
+      "capture_physical_key": {
+        "name": "Marquer un test de clé"
+      },
+      "capture_thumbturn": {
+        "name": "Marquer un test du bouton intérieur"
       }
     }
   },
