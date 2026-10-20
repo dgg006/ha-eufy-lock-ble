@@ -2,6 +2,20 @@
 
 [Español](README.es.md) · [Supported model](docs/SUPPORTED_MODELS.md) · [Privacy](PRIVACY.md)
 
+> **Battery consumption under investigation.** Premature AA battery depletion was
+> reported during use of this integration. Persistent connections and frequent
+> history reads may contribute; the cause and battery-life impact are not confirmed.
+> Until this is resolved, we recommend turning **Stay connected off** and using a
+> **15–30 minute poll interval**. This is a precaution, not a verified fix. The current
+> defaults still enable Stay connected and poll every five minutes; change them in
+> **Settings → Devices & services → eufy Smart Lock (BLE) → Configure**.
+> With Stay connected off, physical operations may only be reported at the next
+> successful poll; do not rely on immediate access notifications. HA lock/unlock
+> commands still connect on demand. Advertisement-based wake-up is under investigation
+> and is not implemented. Contributions and sanitized observations are welcome in
+> [GitHub issues](https://github.com/dgg006/ha-eufy-lock-ble/issues). Do not share
+> credentials, private history or raw captures publicly.
+
 Control and monitor **eufy Bluetooth smart locks** directly from Home Assistant through an
 **ESPHome Bluetooth proxy** or a local Bluetooth adapter. No eufy Wi-Fi bridge, no cloud at
 runtime: the only cloud access is a one-time login during setup to fetch the lock's secrets.
@@ -161,10 +175,10 @@ is not enough for Python to pick up new code.
 
 ## Connection behaviour
 
-- **Stay connected** mode holds one BLE link, the same pattern the eufy Wi-Fi bridge uses.
-  The lock keeps its own connection parameters, so battery impact is comparable to the
-  bridge; motor moves, fingerprint and keypad wakes dominate consumption. A connected lock
-  also stops advertising.
+- **Stay connected** mode holds one BLE link with a 15 s heartbeat. Battery impact
+  has not been measured and premature depletion is under investigation (see the
+  warning above). History scans also generate Bluetooth traffic. A connected lock
+  stops advertising.
 - BLE peripherals close the link now and then (the lock drops a session every 5 to 15 min
   in practice). After such a drop the integration reconnects after 1 s and is usually back
   within 5 to 20 s; the session length is logged at info level. The connectivity sensor
@@ -205,7 +219,7 @@ logger:
 
 - Settings are exposed read-only. The lock has a set-parameter command, but its payload has
   not been verified on hardware, so nothing is written to the lock beyond lock/unlock.
-- No access log, user or passcode management.
+- Access history is read-only. No lock-side user, fingerprint or passcode management.
 - Only the T8510 has been exercised on hardware.
 
 ## Development

@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.3
+
+- Add prominent English and Spanish warnings about reported premature battery
+  depletion, the ongoing investigation and the limits of the suggested precautions.
+- Document disabling persistent connections, longer polling intervals and delayed
+  physical-event notifications; explicitly state that current defaults are unchanged.
+- Remove unmeasured battery-life comparisons with the manufacturer's bridge and
+  correct the access-history limitation. Runtime behavior is unchanged from 0.3.2.
+
 ## 0.3.2
 
 - Add user-started ten-minute advertisement captures and annotation-only buttons

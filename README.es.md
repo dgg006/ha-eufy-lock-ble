@@ -1,5 +1,21 @@
 # eufy Smart Lock Touch T8510 por Bluetooth
 
+> **Consumo de pilas en investigación.** Se informó un agotamiento prematuro de
+> las pilas AA durante el uso de esta integración. La conexión persistente y las
+> consultas frecuentes del historial podrían contribuir; la causa y su impacto
+> todavía no están confirmados. Mientras se investiga, recomendamos desactivar
+> **Mantener conectado** y usar una **comprobación cada 15–30 minutos**. Es una
+> precaución, no una solución comprobada. Los valores predeterminados todavía
+> mantienen la conexión y consultan cada cinco minutos; cambialos en
+> **Ajustes → Dispositivos y servicios → eufy Smart Lock (BLE) → Configurar**.
+> Sin conexión persistente, las acciones físicas pueden aparecer recién en la
+> siguiente consulta exitosa; no dependas de avisos inmediatos de acceso. Los
+> comandos de bloqueo y desbloqueo desde HA se conectan bajo demanda. Detectar
+> interacciones por anuncios Bluetooth sigue en investigación y no está implementado.
+> Las ideas y observaciones sin datos privados son bienvenidas en
+> [GitHub Issues](https://github.com/dgg006/ha-eufy-lock-ble/issues).
+> No publiques credenciales, historiales privados ni capturas sin revisar.
+
 Integración comunitaria para Home Assistant basada en
 [Leicas/ha-eufy-lock-ble](https://github.com/Leicas/ha-eufy-lock-ble), con licencia MIT.
 

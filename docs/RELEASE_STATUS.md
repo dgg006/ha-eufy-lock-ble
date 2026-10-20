@@ -1,7 +1,13 @@
 # Release validation status
 
-Version: **0.3.2**. Prepared on 2026-10-19.
+Version: **0.3.3**. Prepared on 2026-10-20.
 Public repository: `dgg006/ha-eufy-lock-ble`.
+
+0.3.3 changes documentation and the manifest version only. The README warnings
+disclose reported premature battery depletion, ongoing investigation, unchanged
+defaults and the notification delays when persistent connections are disabled.
+Suggested connection/polling precautions have not been verified as a battery fix.
+Fresh physical-event latency and battery endurance remain unmeasured.
 
 ## Completed locally
 
@@ -42,5 +48,5 @@ follows successful checks.
 The 0.2.0 Linux run passed 98 tests, HACS and Hassfest. Consult the Actions run for
 the 0.3.0 commit for that version's separate results.
 
-Default HACS catalog inclusion is a separate optional submission and has not been
-requested. Existing MIT copyright and upstream credits remain.
+Default HACS catalog inclusion is being submitted separately; acceptance is not
+claimed. Existing MIT copyright and upstream credits remain.
