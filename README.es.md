@@ -126,3 +126,25 @@ Al informar un problema, indicá modelo, firmware, versión de HA y código de e
 No hace falta incluir el número de serie completo, la MAC ni tus credenciales.
 
 Proyecto comunitario independiente de eufy/Anker.
+
+## Créditos y licencia
+
+Este proyecto se basa en [Leicas/ha-eufy-lock-ble](https://github.com/Leicas/ha-eufy-lock-ble),
+de **Antoine Weill--Duflos**, que aportó la integración original, la implementación
+de sesiones y protocolo Bluetooth, el flujo de configuración, pruebas y el icono
+del escudo. Conservamos su licencia MIT y su aviso de copyright, también dentro
+del paquete instalable.
+
+**bropat / Patrick Broetto** y los colaboradores de
+[eufy-security-client](https://github.com/bropat/eufy-security-client) aportaron la
+referencia de la API de eufy y la construcción criptográfica adaptada en
+`eufy_ble/crypto.py`. El ayudante para obtener credenciales también utiliza esa
+biblioteca. Su aviso MIT se incluye en las dos copias de [LICENSE](LICENSE).
+
+Nuestra distribución agrega la zona horaria automática, el tratamiento de rechazos,
+mejoras de privacidad, historial de accesos Bluetooth, nombres locales de usuarios,
+capturas de diagnóstico acotadas y correcciones de instalación. Estos cambios
+conservan el reconocimiento de los autores originales. La procedencia del icono
+está documentada en [docs/BRAND.md](docs/BRAND.md); la fotografía del producto se
+atribuye por separado a eufy/Anker. Es una integración comunitaria sin afiliación
+ni respaldo de esos fabricantes.

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.5
+
+- Preserve the eufy-security-client MIT copyright notice alongside the original
+  integration author in both distributed LICENSE files.
+- Clarify the original integration, icon and cryptography credits in English and
+  Spanish. Runtime behavior is unchanged from 0.3.4.
+
 ## 0.3.4
 
 - Default new installations to on-demand Bluetooth connections and 15-minute polling

@@ -254,16 +254,24 @@ in the config entry. Per-lock credentials stay in the user’s Home Assistant st
 Identifiers are redacted from integration diagnostics; raw BLE packet bodies and
 account inventory dumps are not exported by default. [Details and limits](PRIVACY.md).
 
-## Acknowledgements
+## Acknowledgements and licensing
 
-This distribution is based on [Leicas/ha-eufy-lock-ble](https://github.com/Leicas/ha-eufy-lock-ble),
-by Antoine Weill--Duflos. The original MIT license and copyright are preserved.
-The public-maintenance changes add automatic timezone encoding, refusal handling
-and privacy improvements. Manufacturer photos remain attributed to eufy/Anker.
+This distribution builds on [Leicas/ha-eufy-lock-ble](https://github.com/Leicas/ha-eufy-lock-ble),
+by **Antoine Weill--Duflos**, which provided the original integration, Bluetooth
+session/protocol implementation, configuration flow, tests and shield icon artwork.
+The original MIT license and copyright are preserved, including in the installable package.
 
+**bropat / Patrick Broetto** and the
+[eufy-security-client](https://github.com/bropat/eufy-security-client) contributors
+provided the cloud API reference and the cryptographic construction adapted by
+`eufy_ble/crypto.py`. The standalone credentials helper also uses that library.
+Its MIT copyright notice is included in both copies of [LICENSE](LICENSE).
 
-- [eufy-security-client](https://github.com/bropat/eufy-security-client) for the cloud API
-  and the ECIES/KDF construction.
+This maintained distribution adds automatic timezone handling, command refusal
+handling, privacy improvements, Bluetooth access history, local user display names,
+bounded diagnostic captures and installation/setup fixes. These additions do not
+replace the original authors' attribution. Icon provenance is documented in
+[docs/BRAND.md](docs/BRAND.md); the product photograph is credited separately to eufy/Anker.
 
 ## Disclaimer
 

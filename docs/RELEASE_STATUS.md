@@ -1,7 +1,10 @@
 # Release validation status
 
-Version: **0.3.4**. Prepared on 2026-11-05.
+Version: **0.3.5**. Prepared on 2026-11-05.
 Public repository: `dgg006/ha-eufy-lock-ble`.
+
+0.3.5 updates attribution, distributed licenses and version metadata only. Runtime
+code is unchanged from 0.3.4. Both MIT copyright notices ship inside the integration.
 
 New installations use on-demand connections and 900-second polling while premature
 AA battery depletion remains under investigation. This precaution is not a measured
