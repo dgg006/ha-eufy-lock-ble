@@ -188,3 +188,30 @@ async def test_account_without_locks(
     result = await hass.config_entries.flow.async_configure(result["flow_id"], ACCOUNT_INPUT)
     assert result["step_id"] == "account"
     assert result["errors"] == {"base": "no_locks"}
+
+
+@pytest.mark.parametrize(
+    ("response", "error"),
+    [
+        ({"exc": TimeoutError()}, "cannot_connect_cloud"),
+        ({"text": "<html>temporarily unavailable</html>"}, "cannot_connect_cloud"),
+        ({"status": 401}, "invalid_auth"),
+        ({"status": 403}, "invalid_auth"),
+        ({"status": 400}, "cannot_connect_cloud"),
+        ({"status": 500}, "cannot_connect_cloud"),
+    ],
+)
+async def test_cloud_failure_returns_to_account_without_retry(
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, response: dict, error: str
+) -> None:
+    cf.mock_domain(aioclient_mock)
+    aioclient_mock.post(f"{cf.API_BASE}/v2/passport/login_sec", **response)
+    result = await _start(hass)
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], ACCOUNT_INPUT)
+    assert result["type"] is FlowResultType.FORM
+    assert result["step_id"] == "account"
+    assert result["errors"] == {"base": error}
+    assert _defaults(result)[CONF_EMAIL] == cf.EMAIL
+    assert CONF_PASSWORD not in _defaults(result)
+    requests = [call for call in aioclient_mock.mock_calls if "login_sec" in str(call[1])]
+    assert len(requests) == 1

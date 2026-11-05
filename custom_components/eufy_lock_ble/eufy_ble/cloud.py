@@ -241,10 +241,17 @@ class EufyCloud:
                 method, url, json=json, headers=self._headers(), timeout=REQUEST_TIMEOUT
             ) as resp:
                 if resp.status != 200:
+                    if resp.status in (401, 403) and url.split("?", 1)[0].endswith(
+                        "/v2/passport/login_sec"
+                    ):
+                        raise InvalidAuth("eufy rejected the account login")
                     raise EufyCloudError(f"HTTP {resp.status} from {url}")
-                body = await resp.json(content_type=None)
-        except aiohttp.ClientError as err:
-            raise EufyCloudError(f"network error talking to eufy cloud: {err}") from err
+                try:
+                    body = await resp.json(content_type=None)
+                except ValueError as err:
+                    raise EufyCloudError("invalid JSON response from eufy cloud") from err
+        except (aiohttp.ClientError, TimeoutError) as err:
+            raise EufyCloudError("network error talking to eufy cloud") from err
         if not isinstance(body, dict):
             raise EufyCloudError(f"unexpected response from {url}")
         return body

@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.3.4
+
+- Default new installations to on-demand Bluetooth connections and 15-minute polling
+  as a precaution while battery consumption remains under investigation. Physical
+  events may arrive at the next poll; immediate notifications are not guaranteed.
+- Migrate existing entries without changing saved or previous implicit connection
+  settings, credentials, entity identifiers, local aliases or history.
+- Recover gracefully from cloud timeouts and invalid JSON during setup; distinguish
+  HTTP 401/403 login rejection from other cloud failures without automatic retries.
+- Isolate the user-name options test from real Bluetooth hardware in CI.
+- Align package metadata and document the upstream brand icon provenance.
+
 ## 0.3.3
 
 - Add prominent English and Spanish warnings about reported premature battery

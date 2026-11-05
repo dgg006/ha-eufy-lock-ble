@@ -127,7 +127,7 @@ async def test_capture_requires_disconnected_mode(hass, mock_bluetooth):
     from custom_components.eufy_lock_ble.eufy_ble import LockCredentials
 
     lock = FakeLock()
-    coordinator = EufyLockCoordinator(hass, MockConfigEntry(domain=DOMAIN), ADDRESS, MagicMock(spec=LockCredentials))
+    coordinator = EufyLockCoordinator(hass, MockConfigEntry(domain=DOMAIN, options={"keep_connected": True}), ADDRESS, MagicMock(spec=LockCredentials))
     assert coordinator.keep_connected
     with pytest.raises(HomeAssistantError, match='Disable Keep connected'):
         await coordinator.async_start_capture()

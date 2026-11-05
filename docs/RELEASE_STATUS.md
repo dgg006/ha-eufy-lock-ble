@@ -1,52 +1,43 @@
 # Release validation status
 
-Version: **0.3.3**. Prepared on 2026-10-20.
+Version: **0.3.4**. Prepared on 2026-11-05.
 Public repository: `dgg006/ha-eufy-lock-ble`.
 
-0.3.3 changes documentation and the manifest version only. The README warnings
-disclose reported premature battery depletion, ongoing investigation, unchanged
-defaults and the notification delays when persistent connections are disabled.
-Suggested connection/polling precautions have not been verified as a battery fix.
-Fresh physical-event latency and battery endurance remain unmeasured.
+New installations use on-demand connections and 900-second polling while premature
+AA battery depletion remains under investigation. This precaution is not a measured
+battery fix. Physical operations may only appear at the next successful poll.
+Existing entries migrate with their saved or previous implicit settings intact;
+credentials, aliases, entity identifiers and history are retained.
 
-## Completed locally
+## Local verification
 
-- 121 tests passed, including timezone vectors, DST, encrypted sessions, cloud/setup
-  flows, entities, rejection handling, diagnostics redaction and model identification.
-  History checks cover encrypted queries, nonempty final pages, overlap, background
-  pagination, stalled scans, delayed records, startup replay suppression and privacy.
-- Alias tests cover selecting observed users, editing/removing local names, keeping
-  aliases when connection settings change, stable record IDs, diagnostic redaction
-  and immediate sensor updates without reconnecting Bluetooth.
-- Capture tests cover annotation-only buttons, polling pause, duplicate reports,
-  bounded duration/report count, atomic files, checkpoints, shutdown and write failures.
-- Ruff lint passed. Git whitespace validation passed.
-- Public file-boundary scan passed. The reviewed source tree contains no private
-  access file, real installation export, account dump, APK/DEX/native app binary,
-  packet capture or investigation scripts.
-- Source and integration-only ZIP archives were generated from reviewed files.
-- T8510 firmware 2.0.2.3 physical lock/unlock and readings were confirmed using the
-  timezone correction. The history candidate was installed on Home Assistant 2026.10.1
-  and completed a real Bluetooth history scan. The returned records include two
-  distinct fingerprint-user IDs, passcode, app, manual and fingerprint-lock events.
-- New physical trials of both fingerprints, PIN and key are pending user availability.
-  A history scan proves those records can be decoded; it does not measure new-event
-  latency or distinguish mechanical key use from the interior thumb-turn.
+- 131 tests passed: encrypted sessions, controls, status, timezone/DST, cloud login,
+  timeout and malformed JSON recovery, HTTP login rejection, task cancellation,
+  history pagination/deduplication, aliases, privacy and bounded capture.
+- Migration tests preserve both implicit legacy defaults and explicit settings and
+  aliases. A new entry test confirms on-demand operation and 900-second polling.
+- Ruff and the public-tree privacy scan passed. Candidate source and integration
+  archives were checked for known private installation identifiers without finding
+  any matches. Private app binaries and research captures are not distributed.
+- The local run uses a Windows harness outside the repository for unused POSIX
+  helpers. GitHub CI runs on Linux with socket blocking enabled; its results are
+  linked from the release and the HACS submission.
 
-The local test run used Windows and Home Assistant 2026.2.3. Unused POSIX process
-helpers (`fcntl`, `resource`) were supplied by a local harness outside this repository.
-The optional D-Bus extension ran as pure Python. The Windows LRU wheel was 1.4.1
-because the pinned 1.3.0 release has no compatible Windows wheel. The Linux CI
-workflow retains the original pinned test requirements. GitHub results are tracked below.
+## Physical validation and limits
 
-## GitHub validation
+Earlier hardware checks verified T8510 firmware 2.0.2.3 lock/unlock, status and
+history reads. This release was tested with synthetic devices and cloud responses;
+it has not been installed on the user's Home Assistant as part of publication.
+No new physical operation, battery endurance or event-latency test is claimed.
+Other models remain unverified.
 
-The public repository was created on 2026-10-14 with installation buttons for HACS
-in both READMEs. GitHub-hosted tests, Hassfest and HACS validation run on each push;
-their results are available in the repository's Actions tab. Release publication
-follows successful checks.
-The 0.2.0 Linux run passed 98 tests, HACS and Hassfest. Consult the Actions run for
-the 0.3.0 commit for that version's separate results.
+## Publication
 
-Default HACS catalog inclusion is being submitted separately; acceptance is not
-claimed. Existing MIT copyright and upstream credits remain.
+Publish only after the commit's Linux tests, HACS and Hassfest pass, then verify the
+release tag as well. The stable release matches manifest.json and pyproject.toml.
+The installation buttons work as a HACS custom repository while the catalog PR is
+under review; catalog acceptance is not claimed. Once accepted, lead the README
+installation instructions with searching for the integration in HACS.
+
+The original MIT license and upstream icon artwork remain; provenance is documented
+in [BRAND.md](BRAND.md).

@@ -64,6 +64,22 @@ async def async_setup_entry(hass: HomeAssistant, entry: EufyLockConfigEntry) -> 
     return True
 
 
+async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Preserve existing connection settings when changing new-install defaults."""
+    if entry.version > 2:
+        return False
+    if entry.version == 1:
+        # Version 1 used these implicit defaults. Keep them explicit on upgrade;
+        # never replace a user's saved settings or local display-name aliases.
+        options = {
+            OPT_KEEP_CONNECTED: True,
+            OPT_POLL_INTERVAL: 300,
+            **entry.options,
+        }
+        hass.config_entries.async_update_entry(entry, options=options, version=2)
+    return True
+
+
 async def _async_update_listener(hass: HomeAssistant, entry: EufyLockConfigEntry) -> None:
     """Apply display-name edits immediately; reload only connection settings."""
     coordinator = entry.runtime_data

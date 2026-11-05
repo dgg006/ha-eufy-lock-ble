@@ -6,8 +6,9 @@
 > reported during use of this integration. Persistent connections and frequent
 > history reads may contribute; the cause and battery-life impact are not confirmed.
 > Until this is resolved, we recommend turning **Stay connected off** and using a
-> **15–30 minute poll interval**. This is a precaution, not a verified fix. The current
-> defaults still enable Stay connected and poll every five minutes; change them in
+> **15–30 minute poll interval**. This is a precaution, not a verified fix. New installations
+> default to Stay connected off and a 15-minute poll interval. Existing installations
+> keep their previous settings; review them in
 > **Settings → Devices & services → eufy Smart Lock (BLE) → Configure**.
 > With Stay connected off, physical operations may only be reported at the next
 > successful poll; do not rely on immediate access notifications. HA lock/unlock
@@ -80,7 +81,7 @@ stable user IDs and the original `reported_user_name` are retained.
 All settings entities are **read-only** for now (see *Limitations*). Everything except the
 lock itself is in the diagnostic category.
 
-Live updates: in the default **stay connected** mode the lock pushes every bolt change
+Live updates: in the optional **stay connected** mode the lock pushes every bolt change
 (thumb-turn, keypad, fingerprint, app) to Home Assistant within about two seconds, together
 with the battery level.
 
@@ -170,8 +171,11 @@ is not enough for Python to pick up new code.
 
 | Option | Default | Effect |
 |---|---|---|
-| Stay connected | on | Keeps the BLE session open with a 15 s heartbeat so state changes arrive instantly. Reconnects automatically with back-off. Turn off to free the lock for the eufy app between operations; state is then only read at each poll and on each command. |
-| Poll interval | 300 s | How often the state and settings are (re)read. |
+| Stay connected | off | When enabled, keeps the BLE session open with a 15 s heartbeat so state changes arrive instantly. Reconnects automatically with back-off. Turn off to free the lock for the eufy app between operations; state is then only read at each poll and on each command. |
+| Poll interval | 900 s | How often the state and settings are (re)read. |
+
+Existing installations keep their saved settings, including the previous implicit defaults
+(on / 300 s). Review them before enabling persistent connections during the battery investigation.
 
 ## Connection behaviour
 

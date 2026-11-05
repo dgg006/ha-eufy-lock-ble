@@ -222,6 +222,46 @@ async def test_setup_survives_unreachable_lock(hass: HomeAssistant, lock: FakeLo
     assert hass.states.get(LOCK_ENTITY).state == "unavailable"
 
 
+async def test_new_entry_uses_on_demand_and_fifteen_minute_polling(
+    hass: HomeAssistant, lock: FakeLock, connector: FakeConnector
+) -> None:
+    entry = MockConfigEntry(
+        domain=DOMAIN, data=entry_data(lock), version=2, unique_id=ADDRESS, title="Back Door"
+    )
+    entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+    assert not entry.runtime_data.keep_connected
+    assert entry.runtime_data.update_interval.total_seconds() == 900
+    assert len(connector.clients) == 1
+    assert not connector.current.is_connected
+    assert hass.states.get(LOCK_ENTITY).state == LockState.LOCKED
+    assert await hass.config_entries.async_unload(entry.entry_id)
+
+
+@pytest.mark.parametrize("saved_options", [{}, {
+    OPT_KEEP_CONNECTED: False, OPT_POLL_INTERVAL: 1800, "user_aliases": {"0001": "Member"}
+}])
+async def test_migration_preserves_existing_settings_and_private_data(
+    hass: HomeAssistant, lock: FakeLock, saved_options: dict
+) -> None:
+    from custom_components.eufy_lock_ble import async_migrate_entry
+
+    original_data = entry_data(lock)
+    entry = MockConfigEntry(domain=DOMAIN, data=original_data, options=saved_options, version=1)
+    entry.add_to_hass(hass)
+    assert await async_migrate_entry(hass, entry)
+    assert entry.version == 2
+    assert dict(entry.data) == original_data
+    assert dict(entry.options) == {
+        OPT_KEEP_CONNECTED: True, OPT_POLL_INTERVAL: 300, **saved_options
+    }
+    # A second pass must leave the upgraded entry unchanged.
+    before = dict(entry.options)
+    assert await async_migrate_entry(hass, entry)
+    assert dict(entry.options) == before
+
+
 async def test_persistent_mode_waits_for_reconnect(
     hass: HomeAssistant, lock: FakeLock, connector: FakeConnector
 ) -> None:

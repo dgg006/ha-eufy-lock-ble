@@ -92,7 +92,7 @@ def _serial_from_name(name: str | None) -> str:
 class EufyLockConfigFlow(ConfigFlow, domain=DOMAIN):
     """Handle discovery and setup."""
 
-    VERSION = 1
+    VERSION = 2
 
     def __init__(self) -> None:
         """Initialise."""

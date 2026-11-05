@@ -89,6 +89,7 @@ async def test_bluetooth_discovery_creates_entry(hass: HomeAssistant) -> None:
     assert result["title"] == "Back Door"
     assert result["data"] == entry_data(lock)
     assert result["result"].unique_id == ADDRESS
+    assert result["result"].version == 2
 
 
 async def test_discovery_already_configured(hass: HomeAssistant) -> None:

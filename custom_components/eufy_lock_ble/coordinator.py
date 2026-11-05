@@ -2,11 +2,11 @@
 
 Two modes, chosen by the ``keep_connected`` option:
 
-* **persistent** (default): hold the BLE connection open through the Bluetooth
+* **persistent**: hold the BLE connection open through the Bluetooth
   proxy, send heartbeats, and receive live ``STATE_NOTIFY`` pushes.  The lock
   only accepts one central at a time, so the eufy app cannot be used while
   Home Assistant is connected.
-* **on demand**: connect only to poll (``poll_interval``) or to actuate, then
+* **on demand** (new-install default): connect only to poll (``poll_interval``) or to actuate, then
   disconnect.  Frees the lock for the app between operations but state changes
   made at the door are only seen at the next poll.
 """

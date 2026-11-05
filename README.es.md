@@ -5,8 +5,9 @@
 > consultas frecuentes del historial podrían contribuir; la causa y su impacto
 > todavía no están confirmados. Mientras se investiga, recomendamos desactivar
 > **Mantener conectado** y usar una **comprobación cada 15–30 minutos**. Es una
-> precaución, no una solución comprobada. Los valores predeterminados todavía
-> mantienen la conexión y consultan cada cinco minutos; cambialos en
+> precaución, no una solución comprobada. Las instalaciones nuevas ya usan
+> conexión bajo demanda y comprobación cada 15 minutos. Las instalaciones existentes
+> conservan sus ajustes anteriores; revisalos en
 > **Ajustes → Dispositivos y servicios → eufy Smart Lock (BLE) → Configurar**.
 > Sin conexión persistente, las acciones físicas pueden aparecer recién en la
 > siguiente consulta exitosa; no dependas de avisos inmediatos de acceso. Los

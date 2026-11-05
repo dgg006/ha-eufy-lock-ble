@@ -21,7 +21,7 @@ from .helpers import ADDRESS, FakeConnector, entry_data, make_ble_device
 from .test_history import record_bytes
 
 
-async def test_edit_alias_preserve_clear_and_reject_bad_names(hass):
+async def test_edit_alias_preserve_clear_and_reject_bad_names(hass, mock_bluetooth):
     lock = FakeLock()
     entry = MockConfigEntry(domain=DOMAIN, data=entry_data(lock), unique_id=ADDRESS,
                             options={OPT_USER_ALIASES: {'0002': 'Existing alias'}})
@@ -79,6 +79,7 @@ async def test_alias_updates_sensors_events_and_diagnostics_without_reconnect(ha
         coordinator = entry.runtime_data
         record_id = coordinator.history.latest.record_id
         hass.config_entries.async_update_entry(entry, options={
+            **entry.options,
             OPT_KEEP_CONNECTED: False, OPT_USER_ALIASES: {'0001': 'Private display alias'},
         })
         await hass.async_block_till_done()

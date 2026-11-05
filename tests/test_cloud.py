@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import base64
 
 from homeassistant.core import HomeAssistant
@@ -42,6 +43,15 @@ from .cloud_fixtures import (
 
 def make_cloud(hass: HomeAssistant, country: str = "ca") -> EufyCloud:
     return EufyCloud(async_get_clientsession(hass), EMAIL, "hunter2", country)
+
+
+async def test_login_cancellation_is_not_converted_to_network_error(
+    hass: HomeAssistant, aioclient_mock: AiohttpClientMocker
+) -> None:
+    mock_domain(aioclient_mock)
+    aioclient_mock.post(f"{API_BASE}/v2/passport/login_sec", exc=asyncio.CancelledError())
+    with pytest.raises(asyncio.CancelledError):
+        await make_cloud(hass).login()
 
 
 def test_encrypt_password_roundtrip() -> None:
